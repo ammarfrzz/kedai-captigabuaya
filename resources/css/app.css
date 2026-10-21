@@ -1,11 +1,468 @@
-@import 'tailwindcss';
+/* =====================================================
+   KEDAI CAP TIGABUAYA — Global CSS
+   Variabel, reset, tipografi, utilitas dasar
+   ===================================================== */
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+/* ── CSS Custom Properties ─────────────────────────── */
+:root {
+    /* Brand Colors */
+    --color-primary: #234E2F;
+    /* hijau tua – warna utama */
+    --color-primary-dark: #183621;
+    /* hijau lebih gelap */
+    --color-primary-light: #2D6A4F;
+    /* hijau terang */
+    --color-accent: #B91C1C;
+    /* merah nusantara / crimson – warna pendukung (supporting accent) */
+    --color-accent-light: #DC2626;
+    /* merah cerah untuk hover */
+    --color-accent-dark: #991B1B;
+    /* merah marun pekat */
+    --color-accent-subtle: rgba(185, 28, 28, 0.08);
+    /* aksen merah lembut */
+
+    /* Neutral — Warm Obsidian & Stone for Editorial Elegance */
+    --color-white: #FFFFFF;
+    --color-off-white: #F8F5F0;
+    --color-cream: #FDF8F0;
+    --color-gray-50: #F9FAFB;
+    --color-gray-100: #F3F4F6;
+    --color-gray-200: #E5E7EB;
+    --color-gray-400: #A8A29E;
+    --color-gray-600: #57534E;
+    --color-gray-800: #292524;
+    --color-dark: #191716;
+
+    /* Typography — Luxury Editorial Serif & Clean Geometric Sans (Matching Reference) */
+    --font-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+
+    /* Spacing */
+    --section-py: 5rem;
+
+    /* Border Radius */
+    --radius-sm: 0.5rem;
+    --radius-md: 1rem;
+    --radius-lg: 1.5rem;
+    --radius-xl: 2rem;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .05);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, .10);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, .14);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, .18);
+
+    /* Transitions */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s ease;
+}
+
+/* ── Reset & Base ─────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-base);
+    background-color: #FAF8F5;
+    color: var(--color-gray-800);
+    line-height: 1.7;
+    letter-spacing: -0.012em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+/* ── Typography Scale ─────────────────────────────── */
+.text-display {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+}
+
+.text-hero {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.14;
+    letter-spacing: -0.025em;
+}
+
+.text-section-title {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: clamp(1.85rem, 3.2vw, 2.45rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    color: var(--color-dark);
+}
+
+.text-card-title {
+    font-family: var(--font-base);
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+}
+
+.text-body-lg {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--color-gray-600);
+}
+
+.text-body {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-gray-600);
+}
+
+/* ── Layout Utilities ─────────────────────────────── */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.section,
+section[id] {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--section-py);
+    scroll-margin-top: 70px;
+}
+
+.section--bg {
+    background-color: rgba(253, 248, 240, 0.88);
+}
+
+.section--dark {
+    background-color: var(--color-primary-dark);
+    color: var(--color-white);
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+/* ── Section Header ───────────────────────────────── */
+.section-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+.section-header__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(35, 78, 47, 0.08);
+    color: var(--color-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.375rem 1rem;
+    border-radius: var(--radius-full);
+    margin-bottom: 1rem;
+    border: 1px solid rgba(35, 78, 47, 0.12);
+}
+
+.section-header__badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    display: inline-block;
+}
+
+.section-header__title {
+    color: var(--color-dark);
+}
+
+.section-header__subtitle {
+    max-width: 560px;
+    margin-inline: auto;
+    margin-top: 0.875rem;
+}
+
+/* ── Buttons ──────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    font-family: var(--font-base);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.btn--primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-color: var(--color-primary);
+}
+
+.btn--primary:hover {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(45, 106, 79, 0.35);
+}
+
+.btn--outline {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn--outline:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+    transform: translateY(-2px);
+}
+
+.btn--white {
+    background: var(--color-white);
+    color: var(--color-primary-dark);
+    border-color: var(--color-white);
+}
+
+.btn--white:hover {
+    background: var(--color-cream);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+}
+
+.btn--accent {
+    background: var(--color-accent);
+    color: var(--color-white);
+    border-color: var(--color-accent);
+}
+
+.btn--accent:hover {
+    background: var(--color-accent-light);
+    border-color: var(--color-accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(185, 28, 28, 0.35);
+}
+
+.btn--lg {
+    padding: 1rem 2.25rem;
+    font-size: 1rem;
+}
+
+.btn--sm {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.8125rem;
+}
+
+/* ── Badge / Label ────────────────────────────────── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.28rem 0.8rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.badge--primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.badge--accent {
+    background: var(--color-accent);
+    color: var(--color-white);
+    box-shadow: 0 2px 6px rgba(185, 28, 28, 0.28);
+}
+
+.badge--light {
+    background: rgba(45, 106, 79, 0.12);
+    color: var(--color-primary);
+}
+
+/* ── Card ─────────────────────────────────────────── */
+.card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* ── Rating Stars ─────────────────────────────────── */
+.stars {
+    display: inline-flex;
+    gap: 0.125rem;
+    color: #F59E0B;
+    font-size: 0.875rem;
+}
+
+/* ── Divider ──────────────────────────────────────── */
+.divider {
+    width: 64px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    border-radius: var(--radius-full);
+    margin-block: 1rem;
+}
+
+.divider--center {
+    margin-inline: auto;
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 1024px) {
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --section-py: 3.5rem;
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding-inline: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --section-py: 2.75rem;
+    }
+}
+
+/* =====================================================
+   MEMPHIS RED BACKGROUND DECORATIVE ELEMENTS
+   ===================================================== */
+.decor-shape {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+    color: #B91C1C; /* Merah tegas & pekat, tidak menjadi merah muda */
+    opacity: 0.45;
+    user-select: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.decor-shape--stroke {
+    opacity: 0.55;
+}
+
+.decor-shape--fill {
+    opacity: 0.38;
+}
+
+.decor-shape--float-slow {
+    animation: decorFloatSlow 7s ease-in-out infinite alternate;
+}
+
+.decor-shape--float-reverse {
+    animation: decorFloatReverse 9s ease-in-out infinite alternate;
+}
+
+.decor-shape--spin-slow {
+    animation: decorSpinSlow 22s linear infinite;
+}
+
+@keyframes decorFloatSlow {
+    0% { transform: translateY(0px) rotate(0deg); }
+    100% { transform: translateY(-14px) rotate(3deg); }
+}
+
+@keyframes decorFloatReverse {
+    0% { transform: translateY(0px) rotate(0deg); }
+    100% { transform: translateY(14px) rotate(-3deg); }
+}
+
+@keyframes decorSpinSlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 900px) {
+    .decor-shape {
+        display: none; /* Sembunyikan pada layar kecil agar tidak sesak */
+    }
 }

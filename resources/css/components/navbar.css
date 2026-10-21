@@ -1,0 +1,317 @@
+/* =====================================================
+   NAVBAR — Kedai Cap Tiga Buaya
+   Clean, modern white navbar matching reference design
+   ===================================================== */
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    box-shadow: none;
+    padding-block: 1.15rem;
+    transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease, backdrop-filter 0.35s ease;
+}
+
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding-block: 0.75rem;
+}
+
+.navbar__container {
+    max-width: 1320px;
+}
+
+.navbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+/* ── Logo ─────────────────────────────────────────── */
+.navbar__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease, padding 0.3s ease;
+}
+
+.navbar__logo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.navbar.scrolled .navbar__logo {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border-color: transparent;
+    padding: 0;
+}
+
+.navbar__logo-img {
+    height: 40px;
+    width: auto;
+    max-width: 150px;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+/* ── Desktop Navigation ────────────────────────────── */
+.navbar__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+}
+
+.navbar__link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--radius-full);
+    transition: color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, text-shadow 0.25s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    position: relative;
+}
+
+.navbar__link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.18);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+
+.navbar__link.active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.24);
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.navbar.scrolled .navbar__link {
+    color: #374151;
+    text-shadow: none;
+}
+
+.navbar.scrolled .navbar__link:hover {
+    color: var(--color-primary);
+    background: rgba(35, 78, 47, 0.07);
+    text-shadow: none;
+}
+
+.navbar.scrolled .navbar__link.active {
+    color: var(--color-primary);
+    background: rgba(35, 78, 47, 0.12);
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(35, 78, 47, 0.15);
+    text-shadow: none;
+}
+
+/* ── CTA Button ───────────────────────────────────── */
+.navbar__action {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.navbar__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: #ffffff !important;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 0.55rem 1.25rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(35, 78, 47, 0.25);
+    white-space: nowrap;
+}
+
+.navbar__cta:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(35, 78, 47, 0.35);
+}
+
+/* ── Hamburger ────────────────────────────────────── */
+.navbar__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    background: none;
+    border: none;
+    transition: var(--transition-fast);
+}
+
+.navbar__hamburger span {
+    display: block;
+    width: 24px;
+    height: 2.5px;
+    background: #ffffff;
+    border-radius: var(--radius-full);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+}
+
+.navbar.scrolled .navbar__hamburger span {
+    background: #1f2937;
+    box-shadow: none;
+}
+
+.navbar__hamburger.open span:nth-child(1) {
+    transform: translateY(7.5px) rotate(45deg);
+}
+
+.navbar__hamburger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.navbar__hamburger.open span:nth-child(3) {
+    transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* ── Mobile Drawer ────────────────────────────────── */
+.navbar__drawer {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.navbar__drawer.open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.navbar__drawer-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 85vw);
+    background: var(--color-white);
+    padding: 1.5rem;
+    transform: translateX(100%);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    overflow-y: auto;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+.navbar__drawer.open .navbar__drawer-panel {
+    transform: translateX(0);
+}
+
+.navbar__drawer-close {
+    align-self: flex-end;
+    margin-bottom: 1rem;
+    background: var(--color-gray-100);
+    border: none;
+    border-radius: var(--radius-sm);
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: var(--color-gray-600);
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar__drawer-close:hover {
+    background: var(--color-gray-200);
+    color: var(--color-dark);
+}
+
+.navbar__drawer-link {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-gray-800);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+    border-bottom: 1px solid var(--color-gray-100);
+    text-decoration: none;
+}
+
+.navbar__drawer-link:hover {
+    background: rgba(35, 78, 47, 0.08);
+    color: var(--color-primary);
+    padding-left: 1.35rem;
+}
+
+.navbar__drawer-link.active {
+    background: rgba(35, 78, 47, 0.1);
+    color: var(--color-primary);
+    font-weight: 700;
+    border-left: 3px solid var(--color-primary);
+    padding-left: 1.15rem;
+}
+
+.navbar__drawer .btn {
+    margin-top: 1.25rem;
+    width: 100%;
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 1100px) {
+    .navbar__nav {
+        gap: 0.1rem;
+    }
+    .navbar__link {
+        padding: 0.4rem 0.65rem;
+        font-size: 0.825rem;
+    }
+}
+
+@media (max-width: 980px) {
+    .navbar__nav,
+    .navbar__action {
+        display: none;
+    }
+    .navbar__hamburger {
+        display: flex;
+    }
+    .navbar__logo-img {
+        height: 38px;
+        max-width: 130px;
+    }
+}

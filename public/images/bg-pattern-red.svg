@@ -1,0 +1,97 @@
+<svg width="450" height="750" viewBox="0 0 450 750" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Mask for diagonal striped square 1 -->
+    <mask id="sq-mask-1" x="0" y="0" width="46" height="46">
+      <rect width="46" height="46" rx="4" fill="white"/>
+    </mask>
+    <!-- Mask for diagonal striped square 2 -->
+    <mask id="sq-mask-2" x="0" y="0" width="36" height="36">
+      <rect width="36" height="36" rx="3" fill="white"/>
+    </mask>
+  </defs>
+
+  <!-- 1. Organic Blob (Top Left) -->
+  <path d="M42 16C58 24 64 42 56 56C48 70 28 72 16 66C4 60 -1 46 2 32C5 18 26 8 42 16Z" fill="#DC2626" fill-opacity="0.10"/>
+
+  <!-- 2. Tilted Diamond / Rhombus (Top Center-Right) -->
+  <g transform="translate(190, 48) rotate(45)">
+    <rect x="-12" y="-12" width="24" height="24" rx="3" fill="#DC2626" fill-opacity="0.11"/>
+  </g>
+
+  <!-- 3. Solid Circle Dot (Left) -->
+  <circle cx="75" cy="160" r="14" fill="#DC2626" fill-opacity="0.12"/>
+
+  <!-- 4. Stacked Zigzag Wavy Lines (Left-Center) -->
+  <g transform="translate(70, 240)">
+    <path d="M0 6L10 0L20 6L30 0L40 6L50 0L60 6" stroke="#DC2626" stroke-opacity="0.16" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M0 16L10 10L20 16L30 10L40 16L50 10L60 16" stroke="#DC2626" stroke-opacity="0.16" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M0 26L10 20L20 26L30 20L40 26L50 20L60 26" stroke="#DC2626" stroke-opacity="0.16" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 5. Cross / "X" (Center-Right) -->
+  <g transform="translate(245, 330)">
+    <path d="M-14 -14L14 14M14 -14L-14 14" stroke="#DC2626" stroke-opacity="0.15" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- 6. Striped Square (Left) -->
+  <g transform="translate(45, 410)">
+    <g mask="url(#sq-mask-1)">
+      <line x1="-10" y1="10" x2="10" y2="-10" stroke="#DC2626" stroke-opacity="0.16" stroke-width="2.2"/>
+      <line x1="-5" y1="20" x2="20" y2="-5" stroke="#DC2626" stroke-opacity="0.16" stroke-width="2.2"/>
+      <line x1="0" y1="30" x2="30" y2="0" stroke="#DC2626" stroke-opacity="0.16" stroke-width="2.2"/>
+      <line x1="5" y1="40" x2="40" y2="5" stroke="#DC2626" stroke-opacity="0.16" stroke-width="2.2"/>
+      <line x1="10" y1="50" x2="50" y2="10" stroke="#DC2626" stroke-opacity="0.16" stroke-width="2.2"/>
+      <line x1="20" y1="55" x2="55" y2="20" stroke="#DC2626" stroke-opacity="0.16" stroke-width="2.2"/>
+      <line x1="30" y1="60" x2="60" y2="30" stroke="#DC2626" stroke-opacity="0.16" stroke-width="2.2"/>
+    </g>
+  </g>
+
+  <!-- 7. Right Triangle (Right) -->
+  <path d="M370 470L408 470L408 432Z" fill="#DC2626" fill-opacity="0.11"/>
+
+  <!-- 8. Hollow Ring / Circle (Bottom Left) -->
+  <circle cx="115" cy="565" r="22" stroke="#DC2626" stroke-opacity="0.15" stroke-width="4.5" fill="none"/>
+
+  <!-- 9. Organic Corner Wave (Bottom Right) -->
+  <path d="M360 750C360 700 395 660 450 650V750H360Z" fill="#DC2626" fill-opacity="0.08"/>
+
+  <!-- Balanced Filler Shapes for smooth repetition across wide displays -->
+  <!-- Upper Right: small ring -->
+  <circle cx="380" cy="130" r="14" stroke="#DC2626" stroke-opacity="0.12" stroke-width="3" fill="none"/>
+
+  <!-- Upper Right: small solid dot -->
+  <circle cx="320" cy="70" r="8" fill="#DC2626" fill-opacity="0.10"/>
+
+  <!-- Center Right: zigzag waves -->
+  <g transform="translate(330, 220)">
+    <path d="M0 5L7 0L14 5L21 0L28 5L35 0L42 5" stroke="#DC2626" stroke-opacity="0.13" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M0 13L7 8L14 13L21 8L28 13L35 8L42 13" stroke="#DC2626" stroke-opacity="0.13" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Center: small diamond -->
+  <g transform="translate(180, 200) rotate(45)">
+    <rect x="-8" y="-8" width="16" height="16" rx="2" fill="#DC2626" fill-opacity="0.09"/>
+  </g>
+
+  <!-- Lower Center: small cross -->
+  <g transform="translate(230, 500)">
+    <path d="M-9 -9L9 9M9 -9L-9 9" stroke="#DC2626" stroke-opacity="0.13" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Lower Right: small striped square -->
+  <g transform="translate(320, 560)">
+    <g mask="url(#sq-mask-2)">
+      <line x1="-5" y1="10" x2="10" y2="-5" stroke="#DC2626" stroke-opacity="0.14" stroke-width="2"/>
+      <line x1="0" y1="20" x2="20" y2="0" stroke="#DC2626" stroke-opacity="0.14" stroke-width="2"/>
+      <line x1="5" y1="30" x2="30" y2="5" stroke="#DC2626" stroke-opacity="0.14" stroke-width="2"/>
+      <line x1="10" y1="40" x2="40" y2="10" stroke="#DC2626" stroke-opacity="0.14" stroke-width="2"/>
+      <line x1="20" y1="45" x2="45" y2="20" stroke="#DC2626" stroke-opacity="0.14" stroke-width="2"/>
+    </g>
+  </g>
+
+  <!-- Bottom Left: small solid dot -->
+  <circle cx="50" cy="680" r="10" fill="#DC2626" fill-opacity="0.10"/>
+
+  <!-- Bottom Center: small right triangle -->
+  <path d="M190 690L215 690L215 665Z" fill="#DC2626" fill-opacity="0.10"/>
+</svg>

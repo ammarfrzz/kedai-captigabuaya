@@ -1,0 +1,171 @@
+/* =====================================================
+   FOOTER — Kedai Cap Tigabuaya (Dark Green Theme)
+   ===================================================== */
+
+.footer {
+    background: var(--color-primary-dark);
+    color: rgba(248, 245, 240, 0.82);
+    padding-top: 4.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer__main {
+    display: grid;
+    grid-template-columns: 1.4fr 1.25fr 1.15fr 0.85fr;
+    gap: 3.5rem;
+    padding-bottom: 3.5rem;
+}
+
+/* ── Column 1: Brand Info ─────────────────────────── */
+.footer__brand-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--color-white);
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+}
+
+.footer__brand-desc {
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    color: rgba(248, 245, 240, 0.75);
+}
+
+/* ── Columns 2, 3, 4: Titles & Lists ─────────────── */
+.footer__col-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-white);
+    margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+}
+
+.footer__info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.footer__info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    font-size: 0.8125rem;
+    color: rgba(248, 245, 240, 0.78);
+    line-height: 1.5;
+}
+
+.footer__info-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: rgba(248, 245, 240, 0.65);
+}
+
+.footer__info-item a {
+    color: rgba(248, 245, 240, 0.78);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.footer__info-item a:hover {
+    color: var(--color-white);
+}
+
+/* ── Column 3: Jam Operasional ────────────────────── */
+.footer__schedule-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    font-size: 0.8125rem;
+    color: rgba(248, 245, 240, 0.78);
+    line-height: 1.6;
+}
+
+.footer__schedule-icon {
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: rgba(248, 245, 240, 0.65);
+}
+
+/* ── Column 4: Ikuti Kami (Socials) ───────────────── */
+.footer__social-row {
+    display: flex;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+}
+
+.footer__social-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(248, 245, 240, 0.85);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.footer__social-circle:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.35);
+}
+
+/* ── Bottom Bar ───────────────────────────────────── */
+.footer__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.75rem;
+    color: rgba(248, 245, 240, 0.55);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer__copyright {
+    color: rgba(248, 245, 240, 0.55);
+}
+
+.footer__bottom-links {
+    display: flex;
+    gap: 1.75rem;
+}
+
+.footer__bottom-link {
+    color: rgba(248, 245, 240, 0.65);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.footer__bottom-link:hover {
+    color: var(--color-white);
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 1024px) {
+    .footer__main {
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer__main {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .footer__bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
