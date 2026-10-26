@@ -88,29 +88,92 @@ if (revealEls.length > 0) {
     });
 }
 
-/* ── Menu Tabs ────────────────────────────────────── */
+/* ── Menu Tabs & Expandable Grid (Tampilkan 6 Menu Awal) ── */
 const menuTabs = document.querySelectorAll('.menu-tab');
 const menuCards = document.querySelectorAll('.menu-card[data-category]');
+const btnToggleMenu = document.getElementById('btn-lihat-semua-menu');
+const menuMoreWrap = document.querySelector('.menu-section__more');
 
-if (menuTabs.length > 0) {
-    menuTabs.forEach((tab) => {
-        tab.addEventListener('click', () => {
-            // Remove active from all tabs
-            menuTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
+if (menuCards.length > 0) {
+    const INITIAL_VISIBLE_COUNT = 6;
+    let isMenuExpanded = false;
+    let currentCategory = 'semua';
 
-            const category = tab.dataset.tab;
+    const renderCatalog = (animate = false) => {
+        let matchedCount = 0;
 
-            menuCards.forEach((card) => {
-                if (category === 'semua' || card.dataset.category === category) {
+        menuCards.forEach((card) => {
+            const matchesCategory = (currentCategory === 'semua' || card.dataset.category === currentCategory);
+
+            if (matchesCategory) {
+                matchedCount++;
+                const shouldShow = isMenuExpanded || (matchedCount <= INITIAL_VISIBLE_COUNT);
+                if (shouldShow) {
                     card.style.display = '';
-                    card.style.animation = 'fadeInUp 0.4s ease both';
+                    if (animate) {
+                        card.style.animation = 'fadeInUp 0.35s ease both';
+                    }
                 } else {
                     card.style.display = 'none';
                 }
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Update tombol Lihat Lebih Banyak Menu
+        if (btnToggleMenu && menuMoreWrap) {
+            if (matchedCount <= INITIAL_VISIBLE_COUNT) {
+                menuMoreWrap.style.display = 'none';
+            } else {
+                menuMoreWrap.style.display = '';
+                if (isMenuExpanded) {
+                    btnToggleMenu.innerHTML = '<span>Tampilkan Lebih Sedikit ↑</span>';
+                    btnToggleMenu.setAttribute('aria-expanded', 'true');
+                } else {
+                    const remainingCount = matchedCount - INITIAL_VISIBLE_COUNT;
+                    btnToggleMenu.innerHTML = `<span>Lihat Menu Lainnya (+${remainingCount}) ↓</span>`;
+                    btnToggleMenu.setAttribute('aria-expanded', 'false');
+                }
+            }
+        }
+    };
+
+    // Event listener Tab Kategori
+    if (menuTabs.length > 0) {
+        menuTabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                menuTabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
+
+                currentCategory = tab.dataset.tab;
+                renderCatalog(true);
             });
         });
-    });
+    }
+
+    // Event listener Tombol Toggle "Lihat Semua Menu"
+    if (btnToggleMenu) {
+        btnToggleMenu.addEventListener('click', () => {
+            isMenuExpanded = !isMenuExpanded;
+            renderCatalog(true);
+
+            // Jika mengecilkan kembali ke 6, scroll halus ke header katalog
+            if (!isMenuExpanded) {
+                const katalogSection = document.getElementById('katalog');
+                if (katalogSection) {
+                    katalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    }
+
+    // Inisialisasi awal
+    renderCatalog(false);
 }
 
 /* ── Number Counter Animation ─────────────────────── */
@@ -294,3 +357,310 @@ revealStyle.textContent = `
     }
 `;
 document.head.appendChild(revealStyle);
+
+/* ── Floating Cart & Popup Drawer System ─────────── */
+const CART_STORAGE_KEY = 'ctb_cart_items';
+
+// Reset keranjang jika pengguna me-refresh halaman (reload)
+(() => {
+    try {
+        const perfEntries = performance.getEntriesByType('navigation');
+        const isReload = (perfEntries.length > 0 && perfEntries[0].type === 'reload') ||
+                         (window.performance && window.performance.navigation && window.performance.navigation.type === 1);
+        if (isReload) {
+            localStorage.removeItem(CART_STORAGE_KEY);
+        }
+    } catch (e) {
+        // Fallback jika performance API tidak didukung
+    }
+})();
+
+const getCart = () => {
+    try {
+        const stored = localStorage.getItem(CART_STORAGE_KEY);
+        return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+        return {};
+    }
+};
+
+const saveCart = (cart) => {
+    try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (e) {
+        console.error('Gagal menyimpan keranjang:', e);
+    }
+};
+
+const formatRupiah = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
+
+const floatingCartBtn = document.getElementById('floatingCartBtn');
+const floatingCartBadge = document.getElementById('floatingCartBadge');
+const floatingCartTotal = document.getElementById('floatingCartTotal');
+const cartDrawer = document.getElementById('cartDrawer');
+const cartDrawerBackdrop = document.getElementById('cartDrawerBackdrop');
+const cartDrawerCloseBtn = document.getElementById('cartDrawerCloseBtn');
+const cartDrawerBody = document.getElementById('cartDrawerBody');
+const cartDrawerSubtotal = document.getElementById('cartDrawerSubtotal');
+const cartDrawerTotal = document.getElementById('cartDrawerTotal');
+const cartDrawerItemCount = document.getElementById('cartDrawerItemCount');
+const cartDrawerClearBtn = document.getElementById('cartDrawerClearBtn');
+const cartDrawerCheckoutBtn = document.getElementById('cartDrawerCheckoutBtn');
+const cartToast = document.getElementById('cartToast');
+const cartToastText = document.getElementById('cartToastText');
+
+let toastTimeout = null;
+const showToast = (message) => {
+    if (!cartToast || !cartToastText) return;
+    cartToastText.textContent = message;
+    cartToast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        cartToast.classList.remove('show');
+    }, 2200);
+};
+
+const updateCartUI = () => {
+    const cart = getCart();
+    const itemKeys = Object.keys(cart);
+    let totalItems = 0;
+    let subtotal = 0;
+
+    itemKeys.forEach(k => {
+        totalItems += cart[k].qty;
+        subtotal += (cart[k].price * cart[k].qty);
+    });
+
+    // Update Floating Button
+    if (floatingCartBadge) {
+        floatingCartBadge.textContent = totalItems;
+    }
+    if (floatingCartTotal) {
+        floatingCartTotal.textContent = formatRupiah(subtotal);
+    }
+    if (cartDrawerItemCount) {
+        cartDrawerItemCount.textContent = `${totalItems} Menu`;
+    }
+    if (cartDrawerSubtotal) {
+        cartDrawerSubtotal.textContent = formatRupiah(subtotal);
+    }
+    if (cartDrawerTotal) {
+        cartDrawerTotal.textContent = formatRupiah(subtotal);
+    }
+
+    if (cartDrawerCheckoutBtn) {
+        if (totalItems === 0) {
+            cartDrawerCheckoutBtn.style.opacity = '0.5';
+            cartDrawerCheckoutBtn.style.pointerEvents = 'none';
+        } else {
+            cartDrawerCheckoutBtn.style.opacity = '1';
+            cartDrawerCheckoutBtn.style.pointerEvents = 'auto';
+        }
+    }
+
+    // Render Drawer Body
+    if (cartDrawerBody) {
+        if (itemKeys.length === 0) {
+            cartDrawerBody.innerHTML = `
+                <div class="cart-empty-state">
+                    <div class="cart-empty-icon">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                    </div>
+                    <h3 class="cart-empty-title">Keranjang Kamu Masih Kosong</h3>
+                    <p class="cart-empty-desc">Belum ada makanan atau minuman yang kamu tambahkan. Yuk intip pilihan menu lezat kami!</p>
+                    <button type="button" class="cart-empty-btn" id="btnCartExploreMenu">
+                        Lihat Menu Sekarang
+                    </button>
+                </div>
+            `;
+
+            const btnExplore = document.getElementById('btnCartExploreMenu');
+            if (btnExplore) {
+                btnExplore.addEventListener('click', () => {
+                    closeCartDrawer();
+                    const katalogSection = document.getElementById('katalog');
+                    if (katalogSection) {
+                        katalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+        } else {
+            let html = '';
+            itemKeys.forEach(k => {
+                const item = cart[k];
+                const itemTotal = item.price * item.qty;
+                html += `
+                    <div class="cart-item">
+                        <img src="${item.img}" alt="${item.name}" class="cart-item__img">
+                        <div class="cart-item__details">
+                            <h4 class="cart-item__name">${item.name}</h4>
+                            <div class="cart-item__price">${formatRupiah(item.price)} &times; ${item.qty} = <strong>${formatRupiah(itemTotal)}</strong></div>
+                            <div class="cart-item__actions">
+                                <div class="cart-item__qty-control">
+                                    <button type="button" class="cart-item__qty-btn btn-cart-minus" data-id="${k}" aria-label="Kurangi jumlah">−</button>
+                                    <span class="cart-item__qty-val">${item.qty}</span>
+                                    <button type="button" class="cart-item__qty-btn btn-cart-plus" data-id="${k}" aria-label="Tambah jumlah">+</button>
+                                </div>
+                                <button type="button" class="cart-item__remove-btn btn-cart-remove" data-id="${k}" title="Hapus menu">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            cartDrawerBody.innerHTML = html;
+
+            // Attach event listeners ke tombol dynamic dalam cart drawer
+            cartDrawerBody.querySelectorAll('.btn-cart-minus').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const c = getCart();
+                    if (c[id]) {
+                        if (c[id].qty > 1) {
+                            c[id].qty -= 1;
+                        } else {
+                            delete c[id];
+                        }
+                        saveCart(c);
+                        updateCartUI();
+                    }
+                });
+            });
+
+            cartDrawerBody.querySelectorAll('.btn-cart-plus').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const c = getCart();
+                    if (c[id]) {
+                        c[id].qty += 1;
+                        saveCart(c);
+                        updateCartUI();
+                    }
+                });
+            });
+
+            cartDrawerBody.querySelectorAll('.btn-cart-remove').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const c = getCart();
+                    if (c[id]) {
+                        delete c[id];
+                        saveCart(c);
+                        updateCartUI();
+                    }
+                });
+            });
+        }
+    }
+};
+
+const openCartDrawer = () => {
+    if (cartDrawer && cartDrawerBackdrop) {
+        updateCartUI();
+        cartDrawer.classList.add('active');
+        cartDrawerBackdrop.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+const closeCartDrawer = () => {
+    if (cartDrawer && cartDrawerBackdrop) {
+        cartDrawer.classList.remove('active');
+        cartDrawerBackdrop.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+};
+
+// Event listener tombol open/close cart
+if (floatingCartBtn) {
+    floatingCartBtn.addEventListener('click', openCartDrawer);
+}
+if (cartDrawerCloseBtn) {
+    cartDrawerCloseBtn.addEventListener('click', closeCartDrawer);
+}
+if (cartDrawerBackdrop) {
+    cartDrawerBackdrop.addEventListener('click', closeCartDrawer);
+}
+if (cartDrawerClearBtn) {
+    cartDrawerClearBtn.addEventListener('click', () => {
+        if (confirm('Apakah kamu yakin ingin mengosongkan seluruh pesanan di keranjang?')) {
+            saveCart({});
+            updateCartUI();
+            showToast('Keranjang telah dikosongkan');
+        }
+    });
+}
+
+// Close via ESC
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && cartDrawer && cartDrawer.classList.contains('active')) {
+        closeCartDrawer();
+    }
+});
+
+// Event listener Tambah ke Keranjang (Tombol icon keranjang +)
+document.querySelectorAll('.btn-add-cart').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        const price = parseInt(btn.dataset.price, 10);
+        const img = btn.dataset.img;
+
+        const cart = getCart();
+        if (cart[id]) {
+            cart[id].qty += 1;
+        } else {
+            cart[id] = { id, name, price, img, qty: 1 };
+        }
+
+        saveCart(cart);
+        updateCartUI();
+
+        // Bounce badge
+        if (floatingCartBadge) {
+            floatingCartBadge.classList.remove('cart-badge-bounce');
+            void floatingCartBadge.offsetWidth; // trigger reflow
+            floatingCartBadge.classList.add('cart-badge-bounce');
+        }
+
+        // Visual feedback pada icon button
+        btn.classList.add('added');
+        setTimeout(() => {
+            btn.classList.remove('added');
+        }, 800);
+
+        showToast(`${name} ditambahkan ke keranjang!`);
+    });
+});
+
+// Event listener "Pesan Sekarang" (Langsung arahkan ke Halaman Pembayaran hanya membawa menu ini saja)
+document.querySelectorAll('.btn-buy-now').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        const price = parseInt(btn.dataset.price, 10);
+        const img = btn.dataset.img;
+
+        // Hanya pesan menu yang diklik saat ini (tidak menggabungkan isi keranjang sebelumnya)
+        const singleItemCart = {};
+        singleItemCart[id] = { id, name, price, img, qty: 1 };
+
+        saveCart(singleItemCart);
+
+        const paymentUrl = btn.dataset.paymentUrl || '/pembayaran';
+        window.location.href = paymentUrl;
+    });
+});
+
+// Inisialisasi awal UI keranjang saat halaman dibuka
+updateCartUI();

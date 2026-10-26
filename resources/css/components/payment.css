@@ -1,0 +1,1166 @@
+/* =====================================================
+   KEDAI CAP TIGA BUAYA — Payment / Checkout Page Styling
+   ===================================================== */
+
+body.payment-page,
+.payment-page {
+    background-color: #F8FAFC;
+    min-height: 100vh;
+    font-family: var(--font-base);
+    color: #1F2937;
+    overflow: visible;
+    overflow-x: clip;
+}
+
+/* Header */
+.payment-header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.payment-header__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100%;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.payment-header__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    text-decoration: none;
+    cursor: default;
+    user-select: none;
+}
+
+.payment-header__logo {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+}
+
+.payment-header__title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.01em;
+}
+
+.payment-header__back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4B5563;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: #F3F4F6;
+}
+
+.payment-header__back-btn:hover {
+    color: #234E2F;
+    background: #E5E7EB;
+    transform: translateX(-2px);
+}
+
+/* Main Container */
+.payment-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 5rem;
+}
+
+.payment-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 0.9fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+/* Sections & Cards */
+.payment-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 1.75rem;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    margin-bottom: 1.75rem;
+}
+
+.payment-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.payment-card__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(35, 78, 47, 0.1);
+    color: #234E2F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-card__title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+}
+
+/* Form Controls */
+.payment-form-group {
+    margin-bottom: 1.25rem;
+}
+
+.payment-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.payment-input,
+.payment-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-family: inherit;
+    color: #111827;
+    background: #FFFFFF;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.payment-textarea {
+    resize: none;
+}
+
+.payment-input:focus,
+.payment-textarea:focus {
+    outline: none;
+    border-color: #234E2F;
+    box-shadow: 0 0 0 3px rgba(35, 78, 47, 0.15);
+}
+
+.payment-type-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.payment-type-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem;
+    border-radius: 10px;
+    border: 2px solid #E5E7EB;
+    background: #FFFFFF;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #4B5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-type-btn:hover {
+    border-color: #9CA3AF;
+}
+
+.payment-type-btn.active {
+    border-color: #234E2F;
+    background: rgba(35, 78, 47, 0.05);
+    color: #234E2F;
+}
+
+/* Payment Methods */
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.payment-method-item {
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.payment-method-item:hover {
+    border-color: #D1D5DB;
+}
+
+.payment-method-item.active {
+    border-color: #234E2F;
+    background: rgba(35, 78, 47, 0.03);
+}
+
+.payment-method-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.payment-method-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.payment-radio {
+    width: 18px;
+    height: 18px;
+    accent-color: #234E2F;
+}
+
+.payment-method-name {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #111827;
+}
+
+.payment-method-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #15803D;
+    background: #DCFCE7;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+}
+
+.payment-method-desc {
+    font-size: 0.8125rem;
+    color: #6B7280;
+    padding-left: 2rem;
+}
+
+/* Dynamic QRIS Container & Card */
+.qris-dynamic-container {
+    margin-top: 1rem;
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.qris-dynamic-container.show {
+    display: block;
+}
+
+.qris-card {
+    background: #FFFFFF;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.qris-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.qris-card__logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.qris-tag-badge {
+    background: #BE1E2D;
+    color: #FFFFFF;
+    font-weight: 900;
+    font-size: 0.85rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+}
+
+.qris-issuer {
+    font-size: 0.75rem;
+    color: #6B7280;
+    font-weight: 600;
+}
+
+.qris-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #DCFCE7;
+    color: #15803D;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    letter-spacing: 0.03em;
+}
+
+.qris-live-dot {
+    width: 7px;
+    height: 7px;
+    background: #22C55E;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.4);
+    animation: qrisPulse 1.8s infinite;
+}
+
+@keyframes qrisPulse {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.qris-merchant-box {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.qris-merchant-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: 0.02em;
+}
+
+.qris-nmid {
+    font-size: 0.75rem;
+    color: #6B7280;
+    font-family: monospace;
+    font-weight: 600;
+}
+
+.qris-amount-badge {
+    margin-top: 0.5rem;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.qris-amount-label {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 600;
+}
+
+.qris-amount-value {
+    font-size: 1.15rem;
+    color: #BE1E2D;
+    font-weight: 900;
+}
+
+/* QR Code Wrapper with CTB Center Logo Overlay */
+.qris-code-wrapper {
+    margin: 0 auto 1.25rem;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.qris-code-frame {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    background: #FFFFFF;
+    border: 2px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qris-qr-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.qris-qr-center-logo {
+    position: absolute;
+    width: 38px;
+    height: 38px;
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.qris-qr-center-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Meta Bar: Timer Countdown & Refresh */
+.qris-meta-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto 1.25rem;
+    background: #F9FAFB;
+    padding: 0.55rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    box-sizing: border-box;
+}
+
+.qris-timer-box {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: #4B5563;
+}
+
+.qris-timer-box strong {
+    color: #15803D;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.qris-refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.qris-refresh-btn:hover {
+    background: #234E2F;
+    color: #FFFFFF;
+    border-color: #234E2F;
+}
+
+/* Guide Steps */
+.qris-guide-box {
+    background: #F8FAFC;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    border-left: 3px solid #234E2F;
+}
+
+.qris-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    color: #4B5563;
+    line-height: 1.45;
+}
+
+.qris-step-num {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #234E2F;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* Supported Wallet Chips */
+.qris-wallet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.wallet-chip {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #4B5563;
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+}
+
+/* Right Column: Order Summary (Sticky) */
+.payment-right-col {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 92px;
+    align-self: start;
+    z-index: 10;
+}
+
+.payment-summary-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 1.75rem;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.payment-items-list {
+    max-height: 280px;
+    overflow-y: auto;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.payment-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.payment-summary-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.payment-summary-item__img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.payment-summary-item__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.payment-summary-item__name {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.payment-summary-item__qty {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+.payment-summary-item__total {
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.payment-calc-rows {
+    padding-top: 1rem;
+    border-top: 1px solid #E5E7EB;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.payment-calc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.payment-calc-row--grand {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed #E5E7EB;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.payment-grand-total {
+    font-size: 1.35rem;
+    color: #BE1E2D;
+    font-weight: 900;
+}
+
+.payment-btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: #234E2F;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 9999px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(35, 78, 47, 0.35);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.payment-btn-submit:hover {
+    background: #183621;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(35, 78, 47, 0.45);
+}
+
+.payment-btn-submit:disabled {
+    background: #9CA3AF;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Modal Struk Digital */
+.receipt-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.65);
+    backdrop-filter: blur(5px);
+    z-index: 1100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.receipt-modal.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.receipt-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    max-width: 480px;
+    width: 100%;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.receipt-icon-badge {
+    width: 64px;
+    height: 64px;
+    background: #DCFCE7;
+    color: #16A34A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+}
+
+.receipt-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0.35rem;
+}
+
+.receipt-subtitle {
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin-bottom: 1.5rem;
+}
+
+.receipt-box {
+    background: #F9FAFB;
+    border: 1px dashed #D1D5DB;
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    color: #4B5563;
+}
+
+.receipt-row strong {
+    color: #111827;
+    font-weight: 700;
+}
+
+.receipt-divider {
+    height: 1px;
+    background: #E5E7EB;
+    margin: 0.75rem 0;
+}
+
+.receipt-items-list {
+    margin: 0.75rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.receipt-item-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #1F2937;
+}
+
+.receipt-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #BE1E2D;
+    padding-top: 0.5rem;
+}
+
+.receipt-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.receipt-btn-finish {
+    width: 100%;
+    padding: 0.85rem;
+    background: #234E2F;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.receipt-btn-finish:hover {
+    background: #183621;
+}
+
+.receipt-btn-print {
+    width: 100%;
+    padding: 0.75rem;
+    background: transparent;
+    color: #4B5563;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.receipt-btn-print:hover {
+    background: #F3F4F6;
+    color: #111827;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .payment-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-right-col {
+        position: static;
+    }
+
+    .payment-summary-card {
+        position: static;
+    }
+}
+
+/* =====================================================
+   CONFIRMATION PAGE STYLING (Dedicated Page)
+   ===================================================== */
+.confirmation-page {
+    background-color: #F8FAFC;
+    min-height: 100vh;
+}
+
+.confirmation-main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+}
+
+.confirm-hero-card {
+    text-align: center;
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    margin-bottom: 2rem;
+}
+
+.confirm-hero-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: #DCFCE7;
+    color: #16A34A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.2);
+}
+
+.confirm-hero-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.01em;
+}
+
+.confirm-hero-subtitle {
+    font-size: 0.95rem;
+    color: #6B7280;
+    max-width: 580px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Confirmation Grid: 1.2fr (Instructions) & 0.8fr (Receipt) */
+.confirmation-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.confirm-card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid #E5E7EB;
+    padding: 1.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    margin-bottom: 1.5rem;
+}
+
+.confirm-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 1.25rem;
+}
+
+.confirm-card__header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.confirm-card__title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+}
+
+.confirm-card__sub {
+    font-size: 0.78rem;
+    color: #6B7280;
+    display: block;
+}
+
+/* Cash Section Special */
+.cash-icon-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #234E2F;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(35, 78, 47, 0.2);
+}
+
+.cash-alert-box {
+    background: #FFFFFF;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 1.25rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+}
+
+.cash-queue-badge {
+    margin-bottom: 0.75rem;
+}
+
+.cash-queue-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #4B5563;
+    margin-bottom: 0.25rem;
+}
+
+.cash-queue-id {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #234E2F;
+    letter-spacing: 0.04em;
+    font-family: monospace;
+}
+
+.cash-alert-text {
+    font-size: 0.875rem;
+    color: #4B5563;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.qris-guide-heading {
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+}
+
+.confirm-info-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #F0FDF4;
+    border: 1px solid #DCFCE7;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    color: #166534;
+    font-size: 0.825rem;
+    line-height: 1.45;
+}
+
+.confirm-info-banner p {
+    margin: 0;
+}
+
+/* Right Col: Digital Struk Confirmation */
+.confirm-receipt-card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid #E5E7EB;
+    padding: 1.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    position: -webkit-sticky;
+    position: sticky;
+    top: 92px;
+}
+
+.receipt-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed #E5E7EB;
+}
+
+.receipt-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.receipt-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+.receipt-outlet {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.receipt-loc {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+.receipt-badge-status {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    letter-spacing: 0.04em;
+}
+
+.confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.confirm-btn-print {
+    width: 100%;
+    padding: 0.85rem;
+    background: transparent;
+    color: #374151;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.confirm-btn-print:hover {
+    background: #F3F4F6;
+    color: #111827;
+    border-color: #9CA3AF;
+}
+
+.confirm-btn-home {
+    width: 100%;
+    padding: 0.95rem;
+    background: #234E2F;
+    color: #FFFFFF;
+    text-decoration: none;
+    border-radius: 9999px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 14px rgba(35, 78, 47, 0.3);
+    transition: all 0.2s ease;
+}
+
+.confirm-btn-home:hover {
+    background: #183621;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(35, 78, 47, 0.4);
+}
+
+.payment-method-text-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.payment-method-subtext {
+    font-size: 0.75rem;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+.payment-method-badge--cash {
+    background: #FEF3C7;
+    color: #B45309;
+}
+
+@media (max-width: 900px) {
+    .confirmation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .confirm-receipt-card {
+        position: static;
+    }
+}

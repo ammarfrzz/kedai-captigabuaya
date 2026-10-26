@@ -26,6 +26,7 @@
         'resources/css/components/hero.css',
         'resources/css/components/sections.css',
         'resources/css/components/footer.css',
+        'resources/css/components/cart.css',
         'resources/js/app.js',
     ])
 
@@ -43,6 +44,9 @@
 
     {{-- Footer --}}
     @include('partials.footer')
+
+    {{-- Floating Cart & Popup Drawer --}}
+    @include('partials.cart-drawer')
 
     @stack('scripts')
 </body>

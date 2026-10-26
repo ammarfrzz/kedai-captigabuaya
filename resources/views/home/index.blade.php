@@ -10,7 +10,7 @@
 <section id="beranda" class="hero" aria-label="Beranda – Hero">
     <div class="hero__bg">
         <img
-            src="{{ asset('images/hero-bg.jpg') }}?v={{ filemtime(public_path('images/hero-bg.jpg')) }}"
+            src="{{ \App\Models\LandingMedia::get('hero_bg', 'images/hero-bg.jpg') }}"
             alt="Suasana Kedai Cap Tiga Buaya"
             loading="eager"
             fetchpriority="high"
@@ -46,7 +46,7 @@
             {{-- Image Side --}}
             <div class="about__images" data-reveal data-reveal-delay="0">
                 <img
-                    src="{{ asset('images/bgabout1.jpg') }}?v={{ filemtime(public_path('images/bgabout1.jpg')) }}"
+                    src="{{ \App\Models\LandingMedia::get('about_main', 'images/bgabout1.jpg') }}"
                     alt="Tentang Kedai Cap Tiga Buaya"
                     class="about__img-main"
                     loading="lazy"
@@ -132,7 +132,7 @@
             {{-- 3. Card Bottom-Left Wide: Kualitas Rasa & Suasana Kedai --}}
             <div class="why-bento__card why-bento__card--wide" data-reveal data-reveal-delay="150">
                 <img
-                    src="{{ asset('images/whychooseus.JPG') }}?v={{ file_exists(public_path('images/whychooseus.JPG')) ? filemtime(public_path('images/whychooseus.JPG')) : time() }}"
+                    src="{{ \App\Models\LandingMedia::get('why_bento_wide', 'images/whychooseus.JPG') }}"
                     alt="Suasana santap hangat di Kedai Cap Tiga Buaya"
                     class="why-bento__bg-img"
                     loading="lazy"
@@ -264,9 +264,10 @@
         {{-- Tabs --}}  
         <div class="menu-section__tabs" role="tablist" aria-label="Kategori Menu">
             <button class="menu-tab active" data-tab="semua" role="tab" aria-selected="true" id="tab-semua">Semua</button>
-            <button class="menu-tab" data-tab="nasi"   role="tab" aria-selected="false" id="tab-nasi">Nasi & Lauk</button>
-            <button class="menu-tab" data-tab="lauk"   role="tab" aria-selected="false" id="tab-lauk">Lauk Pauk</button>
-            <button class="menu-tab" data-tab="minum"  role="tab" aria-selected="false" id="tab-minum">Minuman</button>
+            <button class="menu-tab" data-tab="makanan" role="tab" aria-selected="false" id="tab-makanan">Makanan</button>
+            <button class="menu-tab" data-tab="kopi"    role="tab" aria-selected="false" id="tab-kopi">Kopi</button>
+            <button class="menu-tab" data-tab="minuman" role="tab" aria-selected="false" id="tab-minuman">Minuman &amp; Soda</button>
+            <button class="menu-tab" data-tab="kudapan" role="tab" aria-selected="false" id="tab-kudapan">Kudapan</button>
         </div>
 
         {{-- Menu Grid --}}
@@ -275,10 +276,11 @@
             @foreach ($menus as $index => $item)
             <article
                 class="menu-card"
-                data-category="{{ $index === 0 ? 'nasi' : ($index === 1 ? 'lauk' : 'minum') }}"
+                data-category="{{ $item['kategori'] }}"
                 data-reveal
-                data-reveal-delay="{{ $index * 100 }}"
+                data-reveal-delay="{{ ($index % 6) * 80 }}"
                 aria-label="{{ $item['nama'] }}"
+                @if($index >= 6) style="display: none;" @endif
             >
                 <div class="menu-card__img-wrap">
                     <img
@@ -289,25 +291,48 @@
                 </div>
                 <div class="menu-card__body">
                     <h3 class="menu-card__name">{{ $item['nama'] }}</h3>
-                    <div class="menu-card__meta">
-                        <span class="stars" aria-label="Rating {{ $item['rating'] }} bintang">★★★★★</span>
-                        <span>{{ $item['rating'] }}</span>
-                        <span>·</span>
-                        <span>{{ $item['ulasan'] }} ulasan</span>
-                    </div>
+                    @if(!empty($item['deskripsi']))
+                    <p class="menu-card__desc">{{ str_replace('.', '', $item['deskripsi']) }}</p>
+                    @endif
                     <div class="menu-card__footer">
                         <div class="menu-card__price">
                             Rp{{ number_format($item['harga'], 0, ',', '.') }}
                             <span>/ porsi</span>
                         </div>
-                        <a
-                            href="https://wa.me/6281234567890?text={{ urlencode('Halo Kedai Cap Tiga Buaya, saya ingin memesan ' . $item['nama']) }}"
-                            target="_blank"
-                            rel="noopener"
-                            class="menu-card__order-btn"
-                            aria-label="Pesan {{ $item['nama'] }} via WhatsApp"
-                            title="Pesan via WhatsApp"
-                        >Pesan</a>
+                        <div class="menu-card__actions">
+                            <button
+                                type="button"
+                                class="menu-card__btn-cart btn-add-cart"
+                                data-id="{{ $item['id'] }}"
+                                data-name="{{ $item['nama'] }}"
+                                data-price="{{ $item['harga'] }}"
+                                data-img="{{ $item['gambar'] }}"
+                                aria-label="Tambah {{ $item['nama'] }} ke keranjang"
+                                title="Tambah ke Keranjang"
+                            >
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="8" cy="21" r="1"></circle>
+                                    <circle cx="19" cy="21" r="1"></circle>
+                                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                                    <line x1="12" y1="6" x2="12" y2="10"></line>
+                                    <line x1="10" y1="8" x2="14" y2="8"></line>
+                                </svg>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="menu-card__order-btn btn-buy-now"
+                                data-id="{{ $item['id'] }}"
+                                data-name="{{ $item['nama'] }}"
+                                data-price="{{ $item['harga'] }}"
+                                data-img="{{ $item['gambar'] }}"
+                                data-payment-url="{{ route('pembayaran') }}"
+                                aria-label="Pesan {{ $item['nama'] }} sekarang"
+                                title="Pesan Sekarang & Bayar"
+                            >
+                                Pesan
+                            </button>
+                        </div>
                     </div>
                 </div>
             </article>
@@ -315,11 +340,11 @@
 
         </div>
 
-        {{-- View All --}}
+        {{-- View All Toggle --}}
         <div class="menu-section__more" data-reveal>
-            <a href="#" class="btn btn--outline btn--lg" id="btn-lihat-semua-menu">
-                Lihat Semua Menu →
-            </a>
+            <button type="button" class="btn btn--outline btn--lg" id="btn-lihat-semua-menu" aria-expanded="false">
+                <span>Lihat Menu Lainnya (+{{ max(0, count($menus) - 6) }}) ↓</span>
+            </button>
         </div>
 
     </div>
@@ -362,7 +387,7 @@
             {{-- Extra gallery items --}}
             <figure class="gallery__item" data-reveal data-reveal-delay="360">
                 <img
-                    src="{{ asset('images/Gallery4.jpg') }}?v={{ file_exists(public_path('images/Gallery4.jpg')) ? filemtime(public_path('images/Gallery4.jpg')) : time() }}"
+                    src="{{ \App\Models\LandingMedia::get('gallery_4', 'images/Gallery4.jpg') }}"
                     alt="Minuman Segar Dingin"
                     loading="lazy"
                 >
@@ -372,7 +397,7 @@
             </figure>
             <figure class="gallery__item" data-reveal data-reveal-delay="480">
                 <img
-                    src="{{ asset('images/Gallery5.png') }}?v={{ file_exists(public_path('images/Gallery5.png')) ? filemtime(public_path('images/Gallery5.png')) : time() }}"
+                    src="{{ \App\Models\LandingMedia::get('gallery_5', 'images/Gallery5.png') }}"
                     alt="Momen Nongkrong Hangat"
                     loading="lazy"
                 >
@@ -429,6 +454,9 @@
                                 >
                                 <div class="testi-author-info">
                                     <div class="testi-author-name">{{ strtoupper($item['nama']) }}</div>
+                                    @if(!empty($item['role']))
+                                    <div class="testi-author-role">{{ $item['role'] }}</div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -465,7 +493,7 @@
         <div class="cta-banner" data-reveal>
             <div class="cta-banner__bg">
                 <img
-                    src="{{ asset('images/bgfooter.jpeg') }}?v={{ filemtime(public_path('images/bgfooter.jpeg')) }}"
+                    src="{{ \App\Models\LandingMedia::get('cta_bg', 'images/bgfooter.jpeg') }}"
                     alt="Suasana Kedai Cap Tiga Buaya"
                     loading="lazy"
                 >

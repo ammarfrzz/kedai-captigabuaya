@@ -21,7 +21,7 @@
 
             {{-- CTA Button --}}
             <div class="navbar__action">
-                <a href="#cara-pemesanan" class="navbar__cta" id="nav-pesan">Pesan Sekarang</a>
+                <a href="#katalog" class="navbar__cta" id="nav-pesan">Pesan Sekarang</a>
             </div>
 
             {{-- Hamburger Button (Mobile) --}}
@@ -54,6 +54,6 @@
         <a href="#galeri" class="navbar__drawer-link">Galeri</a>
         <a href="#testimoni" class="navbar__drawer-link">Testimoni</a>
 
-        <a href="#cara-pemesanan" class="btn btn--primary btn--lg">Pesan Sekarang 🛒</a>
+        <a href="#katalog" class="btn btn--primary btn--lg">Pesan Sekarang 🛒</a>
     </div>
 </div>
