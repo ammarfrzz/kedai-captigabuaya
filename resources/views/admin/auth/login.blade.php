@@ -356,6 +356,20 @@
                 <h1 class="form-title">Login Admin</h1>
                 <p class="form-subtitle">Silakan masuk untuk mengelola Kedai</p>
 
+                @if ($errors->any())
+                    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>{{ $errors->first() }}</span>
+                    </div>
+                @endif
+
+                @if (session('success'))
+                    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                @endif
+
                 <form action="{{ route('admin.login.submit') }}" method="POST">
                     @csrf
 

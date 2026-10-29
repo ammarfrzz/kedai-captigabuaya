@@ -8,17 +8,22 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\PesananController as AdminPesananController;
 use App\Http\Controllers\Admin\AkunController as AdminAkunController;
+use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 
+// Public Front-end Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran');
 Route::get('/konfirmasi-pembayaran', [PaymentController::class, 'confirmation'])->name('pembayaran.confirmation');
 
-// Admin Routes
+// Admin Guest Routes (Login)
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
-    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+});
 
+// Admin Protected Routes (Wajib Login)
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Kelola Menu
@@ -38,9 +43,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/pesanan/{id}', [AdminPesananController::class, 'show'])->name('pesanan.show');
 
     // Kelola Banner & Gambar Landing Page
-    Route::get('/banner', [App\Http\Controllers\Admin\BannerController::class, 'index'])->name('banner.index');
-    Route::post('/banner/update', [App\Http\Controllers\Admin\BannerController::class, 'update'])->name('banner.update');
-    Route::post('/banner/reset', [App\Http\Controllers\Admin\BannerController::class, 'reset'])->name('banner.reset');
+    Route::get('/banner', [AdminBannerController::class, 'index'])->name('banner.index');
+    Route::post('/banner/update', [AdminBannerController::class, 'update'])->name('banner.update');
+    Route::post('/banner/reset', [AdminBannerController::class, 'reset'])->name('banner.reset');
 
     // Pengaturan Akun
     Route::get('/akun', [AdminAkunController::class, 'index'])->name('akun');
