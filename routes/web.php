@@ -42,6 +42,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/pesanan/take-away', [AdminPesananController::class, 'takeAway'])->name('pesanan.take_away');
     Route::get('/pesanan/baru', [AdminPesananController::class, 'create'])->name('pesanan.create');
     Route::get('/pesanan/{id}', [AdminPesananController::class, 'show'])->name('pesanan.show');
+    Route::patch('/pesanan/{id}/status', [AdminPesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
 
     // Kelola Banner & Gambar Landing Page
     Route::get('/banner', [AdminBannerController::class, 'index'])->name('banner.index');

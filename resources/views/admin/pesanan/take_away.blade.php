@@ -13,10 +13,12 @@
 
 <!-- TOOLBAR -->
 <div class="toolbar">
-    <div class="toolbar-search" style="max-width:380px;">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Cari No. Pesanan, Pelanggan..." id="order-search">
-    </div>
+    <form action="{{ route('admin.pesanan.take_away') }}" method="GET" style="display:flex; width:100%; max-width:380px;">
+        <div class="toolbar-search" style="width:100%;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No. Pesanan, Pelanggan..." id="order-search">
+        </div>
+    </form>
 </div>
 
 <!-- TABLE TAKE AWAY -->
@@ -27,54 +29,64 @@
                 <th>No. Pesanan</th>
                 <th>Pelanggan</th>
                 <th>Menu Dipesan</th>
+                <th>Status</th>
                 <th>Total Bayar</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
-            @php
-            $takeAwayOrders = [
-                ['ord'=>'TKW-2023-0501','name'=>'Hendro Kusuma','phone'=>'0812-3456-7890','items'=>'3x Kopi Butter, 2x Ropang Srikaya','total'=>'Rp 90.000','id'=>89],
-                ['ord'=>'TKW-2023-0502','name'=>'Putri Ramadhani','phone'=>'0857-1122-3344','items'=>'2x Nasi Goreng Mawut, 2x Teh Tarik','total'=>'Rp 86.000','id'=>89],
-                ['ord'=>'TKW-2023-0503','name'=>'Agus Setiawan','phone'=>'0819-9988-7766','items'=>'1x Nasi Telur Barendo, 1x Es Kopi Karamel 124','total'=>'Rp 42.000','id'=>89],
-                ['ord'=>'TKW-2023-0504','name'=>'Reza Kurniawan','phone'=>'0878-5544-3322','items'=>'4x Es Teh Manis, 2x Kentang Goreng','total'=>'Rp 84.000','id'=>89],
-                ['ord'=>'TKW-2023-0505','name'=>'Linda Wahyuni','phone'=>'0821-4433-2211','items'=>'2x Susu Matcha, 1x Risol (2 pcs)','total'=>'Rp 62.000','id'=>89],
-                ['ord'=>'TKW-2023-0506','name'=>'Bayu Pratama','phone'=>'0813-8877-6655','items'=>'2x Mie Nyemek, 2x Soda Gembira','total'=>'Rp 76.000','id'=>89],
-                ['ord'=>'TKW-2023-0507','name'=>'Maya Safitri','phone'=>'0852-3344-5566','items'=>'1x Nasi Lemak Ayam CTB, 1x Kopi Tubruk Susu','total'=>'Rp 41.000','id'=>89],
-            ];
-            @endphp
-            @foreach($takeAwayOrders as $p)
+            @forelse($orders as $p)
             <tr>
                 <td>
-                    <div style="font-weight:700; font-size:12.5px; color:#1a4d2b;">{{ $p['ord'] }}</div>
+                    <div style="font-weight:700; font-size:12.5px; color:#1a4d2b;">{{ $p->order_number }}</div>
                 </td>
                 <td>
-                    <div style="font-weight:600;">{{ $p['name'] }}</div>
+                    <div style="font-weight:600;">{{ $p->customer_name }}</div>
                     <div style="font-size:11.5px; color:var(--text-3);"><i class="fa-solid fa-bag-shopping"></i> Bungkus Bawa Pulang</div>
                 </td>
                 <td style="color:var(--text-2); font-size:12.5px; max-width:240px;">
-                    <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ $p['items'] }}">
-                        {{ $p['items'] }}
+                    @php
+                        $itemsSummary = $p->items->map(fn($item) => "{$item->quantity}x {$item->menu_name}")->join(', ');
+                    @endphp
+                    <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ $itemsSummary }}">
+                        {{ $itemsSummary ?: 'Tidak ada item' }}
                     </div>
                 </td>
-                <td style="font-weight:700; color:var(--green-700);">{{ $p['total'] }}</td>
                 <td>
-                    <a href="{{ route('admin.pesanan.show', ['id' => $p['id'], 'from' => 'take_away']) }}" class="btn btn-primary btn-sm" style="background:var(--green-800); border-color:var(--green-800); color:#ffffff; font-weight:600; font-size:12px; white-space:nowrap; padding:6px 14px; border-radius:var(--radius-sm); text-decoration:none; display:inline-block;">
-                        Detail Pembayaran
+                    @if($p->order_status === 'completed')
+                        <span class="badge" style="background:#dcfce7; color:#15803d;">Selesai</span>
+                    @elseif($p->order_status === 'processing')
+                        <span class="badge" style="background:#fef3c7; color:#b45309;">Dimasak</span>
+                    @elseif($p->order_status === 'cancelled')
+                        <span class="badge" style="background:#fee2e2; color:#b91c1c;">Dibatalkan</span>
+                    @else
+                        <span class="badge" style="background:#f1f5f9; color:#475569;">Menunggu</span>
+                    @endif
+                </td>
+                <td style="font-weight:700; color:var(--green-700);">
+                    Rp {{ number_format($p->total, 0, ',', '.') }}
+                </td>
+                <td>
+                    <a href="{{ route('admin.pesanan.show', ['id' => $p->id, 'from' => 'take_away']) }}" class="btn btn-primary btn-sm" style="background:var(--green-800); border-color:var(--green-800); color:#ffffff; font-weight:600; font-size:12px; white-space:nowrap; padding:6px 14px; border-radius:var(--radius-sm); text-decoration:none; display:inline-block;">
+                        Detail Pesanan
                     </a>
                 </td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" style="text-align:center; padding:30px; color:var(--text-3);">
+                    <i class="fa-solid fa-clipboard-list" style="font-size:24px; margin-bottom:8px; display:block; opacity:0.4;"></i>
+                    Belum ada pesanan Take Away saat ini.
+                </td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 
     <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-top:1px solid var(--border);">
-        <span style="font-size:13px; color:var(--text-3);">Menampilkan 7 pesanan Take Away terbaru</span>
-        <div class="pagination">
-            <a href="#" class="page-btn disabled"><i class="fa-solid fa-chevron-left"></i></a>
-            <a href="#" class="page-btn active">1</a>
-            <a href="#" class="page-btn">2</a>
-            <a href="#" class="page-btn"><i class="fa-solid fa-chevron-right"></i></a>
+        <span style="font-size:13px; color:var(--text-3);">Menampilkan {{ $orders->count() }} dari total {{ $orders->total() }} pesanan</span>
+        <div>
+            {{ $orders->links() }}
         </div>
     </div>
 </div>

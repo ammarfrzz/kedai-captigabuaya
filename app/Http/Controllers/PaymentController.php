@@ -26,7 +26,7 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'customer_name'  => ['required', 'string', 'max:150'],
-            'order_type'     => ['required', 'in:dine_in,take_away,dine-in,take-away'],
+            'order_type'     => ['required', 'in:dine_in,take_away,dine-in,take-away,takeaway'],
             'table_number'   => ['nullable', 'string', 'max:20'],
             'notes'          => ['nullable', 'string'],
             'payment_method' => ['required', 'string'],

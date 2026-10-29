@@ -105,7 +105,7 @@
                                 </svg>
                                 <span>Makan Sini (Dine-in)</span>
                             </button>
-                            <button type="button" class="payment-type-btn" data-type="takeaway" role="radio" aria-checked="false">
+                            <button type="button" class="payment-type-btn" data-type="take-away" role="radio" aria-checked="false">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                                     <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -223,18 +223,6 @@
             const CART_STORAGE_KEY = 'ctb_cart_items';
             const formatRupiah = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
 
-            // Reset keranjang jika pengguna me-refresh halaman (reload)
-            try {
-                const perfEntries = performance.getEntriesByType('navigation');
-                const isReload = (perfEntries.length > 0 && perfEntries[0].type === 'reload') ||
-                                 (window.performance && window.performance.navigation && window.performance.navigation.type === 1);
-                if (isReload) {
-                    localStorage.removeItem(CART_STORAGE_KEY);
-                }
-            } catch (e) {
-                // Fallback jika performance API tidak didukung
-            }
-
             // Ambil keranjang dari localStorage
             let cart = {};
             try {
@@ -325,7 +313,7 @@
                     btn.setAttribute('aria-checked', 'true');
                     orderType = btn.dataset.type;
 
-                    if (orderType === 'takeaway') {
+                    if (orderType === 'takeaway' || orderType === 'take-away' || orderType === 'take_away') {
                         tableGroup.style.display = 'none';
                     } else {
                         tableGroup.style.display = 'block';
@@ -434,6 +422,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
@@ -445,21 +434,22 @@
                         items: itemsPayload
                     })
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) {
-                        alert(data.message || 'Terjadi kesalahan saat memproses pesanan.');
-                        btnConfirmPayment.disabled = false;
-                        btnConfirmPayment.innerHTML = `
-                            <span>Bayar &amp; Konfirmasi</span>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                <polyline points="12" 5 19 12 12 19"></polyline>
-                            </svg>
-                        `;
-                        return;
+                .then(async res => {
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (e) {
+                        throw new Error(`Server returned status ${res.status}`);
                     }
 
+                    if (!res.ok || !data.success) {
+                        const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join('\n') : 'Terjadi kesalahan saat memproses pesanan.');
+                        throw new Error(errorMsg);
+                    }
+
+                    return data;
+                })
+                .then(data => {
                     const transactionId = data.order.id;
 
                     // Siapkan payload pesanan untuk disimpan ke sessionStorage (supaya aman dari reload)
@@ -488,7 +478,7 @@
                 })
                 .catch(err => {
                     console.error('Checkout error:', err);
-                    alert('Gagal mengirim pesanan. Silakan periksa koneksi Anda.');
+                    alert(err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi Anda.');
                     btnConfirmPayment.disabled = false;
                     btnConfirmPayment.innerHTML = `
                         <span>Bayar &amp; Konfirmasi</span>
