@@ -297,6 +297,11 @@
             font-size: 12.5px;
             font-weight: 600;
             padding: 8px 6px 2px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
             transition: color var(--transition);
         }
         .btn-logout:hover { color: #fca5a5; }
@@ -1156,9 +1161,12 @@
                     <span class="u-role">Admin</span>
                 </div>
             </div>
-            <a href="{{ route('admin.login') }}" class="btn-logout">
-                <i class="fa-solid fa-right-from-bracket"></i> Keluar
-            </a>
+            <form action="{{ route('admin.logout') }}" method="POST" style="margin: 0;">
+                @csrf
+                <button type="submit" class="btn-logout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+                </button>
+            </form>
         </div>
     </aside>
 

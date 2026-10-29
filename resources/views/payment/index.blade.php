@@ -412,17 +412,22 @@
                 const formattedDate = `${day} ${month} ${year}, ${hours}:${minutes} WIB`;
 
                 // Format items array untuk backend
-                const itemsPayload = Object.keys(cart).map(k => ({
-                    id: cart[k].id,
-                    name: cart[k].name,
-                    price: cart[k].price,
-                    qty: cart[k].qty,
-                    notes: cart[k].notes || null
-                }));
+                let totalAmount = 0;
+                const itemsPayload = Object.keys(cart).map(k => {
+                    const itemTotal = cart[k].price * cart[k].qty;
+                    totalAmount += itemTotal;
+                    return {
+                        id: cart[k].id,
+                        name: cart[k].name,
+                        price: cart[k].price,
+                        qty: cart[k].qty,
+                        notes: cart[k].notes || null
+                    };
+                });
 
                 // Disable submit button saat proses
-                submitBtn.disabled = true;
-                submitBtn.innerText = 'Memproses Pesanan...';
+                btnConfirmPayment.disabled = true;
+                btnConfirmPayment.innerHTML = `<span>Memproses Pesanan...</span>`;
 
                 // Kirim data pesanan ke backend API
                 fetch("{{ route('pembayaran.checkout') }}", {
@@ -444,8 +449,14 @@
                 .then(data => {
                     if (!data.success) {
                         alert(data.message || 'Terjadi kesalahan saat memproses pesanan.');
-                        submitBtn.disabled = false;
-                        submitBtn.innerText = 'Bayar Sekarang';
+                        btnConfirmPayment.disabled = false;
+                        btnConfirmPayment.innerHTML = `
+                            <span>Bayar &amp; Konfirmasi</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12" 5 19 12 12 19"></polyline>
+                            </svg>
+                        `;
                         return;
                     }
 
@@ -478,8 +489,14 @@
                 .catch(err => {
                     console.error('Checkout error:', err);
                     alert('Gagal mengirim pesanan. Silakan periksa koneksi Anda.');
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = 'Bayar Sekarang';
+                    btnConfirmPayment.disabled = false;
+                    btnConfirmPayment.innerHTML = `
+                        <span>Bayar &amp; Konfirmasi</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12" 5 19 12 12 19"></polyline>
+                        </svg>
+                    `;
                 });
             });
         });
