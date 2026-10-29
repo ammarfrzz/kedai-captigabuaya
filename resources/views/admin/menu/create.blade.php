@@ -21,8 +21,19 @@
     </div>
 </div>
 
-<form id="form-tambah-menu" action="{{ route('admin.menu.store') }}" method="POST">
+<form id="form-tambah-menu" action="{{ route('admin.menu.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
+
+    @if ($errors->any())
+        <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 20px;">
+            <strong><i class="fa-solid fa-circle-exclamation"></i> Terjadi kesalahan:</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 <div style="display:grid; grid-template-columns:1fr 400px; gap:24px; align-items:stretch;">
 
     <!-- INFORMASI DASAR (KIRI) -->

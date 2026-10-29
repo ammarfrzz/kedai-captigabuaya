@@ -411,39 +411,76 @@
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const formattedDate = `${day} ${month} ${year}, ${hours}:${minutes} WIB`;
 
-                // Buat No. Transaksi unik
-                const randomCode = Math.floor(100 + Math.random() * 900);
-                const dateCode = `${year}${String(now.getMonth() + 1).padStart(2, '0')}${day}`;
-                const transactionId = `#CTB-${dateCode}-${randomCode}`;
+                // Format items array untuk backend
+                const itemsPayload = Object.keys(cart).map(k => ({
+                    id: cart[k].id,
+                    name: cart[k].name,
+                    price: cart[k].price,
+                    qty: cart[k].qty,
+                    notes: cart[k].notes || null
+                }));
 
-                let totalAmount = 0;
-                Object.keys(cart).forEach(k => {
-                    totalAmount += cart[k].price * cart[k].qty;
+                // Disable submit button saat proses
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Memproses Pesanan...';
+
+                // Kirim data pesanan ke backend API
+                fetch("{{ route('pembayaran.checkout') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        customer_name: customerName,
+                        order_type: orderType,
+                        table_number: tableNo,
+                        notes: notes,
+                        payment_method: selectedMethod,
+                        items: itemsPayload
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert(data.message || 'Terjadi kesalahan saat memproses pesanan.');
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = 'Bayar Sekarang';
+                        return;
+                    }
+
+                    const transactionId = data.order.id;
+
+                    // Siapkan payload pesanan untuk disimpan ke sessionStorage (supaya aman dari reload)
+                    const orderData = {
+                        id: transactionId,
+                        date: formattedDate,
+                        customerName: customerName,
+                        orderType: orderType,
+                        orderTypeText: typeText,
+                        tableNo: tableNo,
+                        notes: notes,
+                        paymentMethod: selectedMethod,
+                        items: cart,
+                        subtotal: totalAmount,
+                        total: totalAmount,
+                        createdAt: Date.now()
+                    };
+
+                    sessionStorage.setItem('ctb_current_order', JSON.stringify(orderData));
+
+                    // Bersihkan keranjang belanja
+                    localStorage.removeItem(CART_STORAGE_KEY);
+
+                    // Arahkan ke halaman konfirmasi pembayaran
+                    window.location.href = "{{ route('pembayaran.confirmation') }}";
+                })
+                .catch(err => {
+                    console.error('Checkout error:', err);
+                    alert('Gagal mengirim pesanan. Silakan periksa koneksi Anda.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Bayar Sekarang';
                 });
-
-                // Siapkan payload pesanan untuk disimpan ke sessionStorage (supaya aman dari reload)
-                const orderData = {
-                    id: transactionId,
-                    date: formattedDate,
-                    customerName: customerName,
-                    orderType: orderType,
-                    orderTypeText: typeText,
-                    tableNo: tableNo,
-                    notes: notes,
-                    paymentMethod: selectedMethod,
-                    items: cart,
-                    subtotal: totalAmount,
-                    total: totalAmount,
-                    createdAt: Date.now()
-                };
-
-                sessionStorage.setItem('ctb_current_order', JSON.stringify(orderData));
-
-                // Bersihkan keranjang belanja
-                localStorage.removeItem(CART_STORAGE_KEY);
-
-                // Arahkan ke halaman konfirmasi pembayaran
-                window.location.href = "{{ route('pembayaran.confirmation') }}";
             });
         });
     </script>

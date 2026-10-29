@@ -16,6 +16,13 @@
     </div>
 </div>
 
+@if (session('success'))
+    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; padding: 12px 16px; border-radius: 8px; font-size: 13.5px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ session('success') }}</span>
+    </div>
+@endif
+
 <!-- TOOLBAR -->
 <div class="toolbar" style="display:flex; justify-content:space-between; align-items:center;">
     <div class="toolbar-search" style="max-width:380px;">
@@ -73,9 +80,13 @@
                         <a href="{{ route('admin.menu.edit', $m['id']) }}" class="icon-btn" title="Edit">
                             <i class="fa-solid fa-pen"></i>
                         </a>
-                        <button class="icon-btn" title="Hapus" style="color:#ef4444; border-color:#fecaca;" onclick="alert('Menu {{ addslashes($m['nama']) }} dihapus (simulasi)')">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                        <form action="{{ route('admin.menu.destroy', $m['id']) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu {{ addslashes($m['nama']) }}?');" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="icon-btn" title="Hapus" style="color:#ef4444; border-color:#fecaca; background:none; cursor:pointer;">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
                     </div>
                 </td>
             </tr>

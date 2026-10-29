@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 // Public Front-end Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran');
+Route::post('/pembayaran/checkout', [PaymentController::class, 'checkout'])->name('pembayaran.checkout');
 Route::get('/konfirmasi-pembayaran', [PaymentController::class, 'confirmation'])->name('pembayaran.confirmation');
 
 // Admin Guest Routes (Login)
