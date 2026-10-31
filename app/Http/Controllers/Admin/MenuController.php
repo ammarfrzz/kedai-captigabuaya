@@ -13,7 +13,7 @@ class MenuController extends Controller
 {
     public function index()
     {
-        $menus = Menu::orderBy('id', 'desc')->get();
+        $menus = Menu::orderByDesc('terlaris')->orderBy('id', 'desc')->get();
         return view('admin.menu.index', compact('menus'));
     }
 
@@ -37,6 +37,7 @@ class MenuController extends Controller
             'harga'     => ['required', 'numeric', 'min:0'],
             'deskripsi' => ['nullable', 'string'],
             'foto'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'terlaris'  => ['nullable', 'boolean'],
         ]);
 
         $gambarPath = null;
@@ -56,6 +57,7 @@ class MenuController extends Controller
             'nama'        => $validated['nama_menu'],
             'slug'        => Str::slug($validated['nama_menu']),
             'harga'       => $validated['harga'],
+            'terlaris'    => $request->boolean('terlaris'),
             'deskripsi'   => $validated['deskripsi'] ?? null,
             'gambar'      => $gambarPath ?? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
             'is_available'=> true,
@@ -81,6 +83,7 @@ class MenuController extends Controller
             'harga'     => ['required', 'numeric', 'min:0'],
             'deskripsi' => ['nullable', 'string'],
             'foto'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'terlaris'  => ['nullable', 'boolean'],
         ]);
 
         $category = Category::where('slug', $validated['kategori'])->first();
@@ -91,6 +94,7 @@ class MenuController extends Controller
             'nama'        => $validated['nama_menu'],
             'slug'        => Str::slug($validated['nama_menu']),
             'harga'       => $validated['harga'],
+            'terlaris'    => $request->boolean('terlaris'),
             'deskripsi'   => $validated['deskripsi'],
         ];
 

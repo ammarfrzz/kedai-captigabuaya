@@ -13,7 +13,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $menus = Menu::all();
+        $menus = Menu::orderByDesc('terlaris')->orderBy('id', 'asc')->get();
 
         $galeri = [
             [

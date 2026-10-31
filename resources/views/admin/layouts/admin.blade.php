@@ -1106,11 +1106,6 @@
                             <i class="fa-solid fa-utensils"></i> Kelola Menu
                         </a>
                     </li>
-                    <li class="nav-sub-item {{ request()->routeIs('admin.menu.terlaris') ? 'active' : '' }}">
-                        <a href="{{ route('admin.menu.terlaris') }}">
-                            <i class="fa-solid fa-fire"></i> Menu Terlaris
-                        </a>
-                    </li>
                 </ul>
             </li>
 

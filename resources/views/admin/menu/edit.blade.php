@@ -43,11 +43,12 @@
         </div>
         <div class="section-card-body" style="flex:1;">
             @php
-            $currentNama = $menu['nama'] ?? 'Nasi Telur Barendo';
-            $currentKategori = strtolower($menu['kategori'] ?? 'makanan');
-            $currentHarga = $menu['harga'] ?? 18000;
-            $currentDeskripsi = $menu['deskripsi'] ?? 'Nasi hangat disajikan dengan telur dadar renyah krispi berenda khas Minang dan sambal sedap.';
-            $currentGambar = $menu['gambar'] ?? 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&q=80';
+            $currentNama      = $menu->nama ?? '';
+            $currentKategori  = strtolower($menu->kategori ?? 'makanan');
+            $currentHarga     = $menu->harga ?? 0;
+            $currentDeskripsi = $menu->deskripsi ?? '';
+            $currentGambar    = $menu->gambar ?? 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&q=80';
+            $currentTerlaris  = (bool) ($menu->terlaris ?? false);
             @endphp
 
             <div class="form-group">
@@ -70,9 +71,28 @@
                 <input type="number" name="harga" class="form-control" value="{{ $currentHarga }}" id="harga">
             </div>
 
-            <div class="form-group" style="margin-bottom:0;">
+            <div class="form-group">
                 <label class="form-label" for="deskripsi">Deskripsi Menu</label>
                 <textarea id="deskripsi" name="deskripsi" class="form-control" rows="4">{{ $currentDeskripsi }}</textarea>
+            </div>
+
+            {{-- ── TAG BEST SELLER ── --}}
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Tag Produk</label>
+                <div class="toggle-wrap">
+                    <div class="toggle-info">
+                        <div class="toggle-title">
+                            <i class="fa-solid fa-fire" style="color:#f97316; margin-right:6px;"></i>
+                            Best Seller
+                        </div>
+                        <div class="toggle-desc">Tandai menu ini sebagai produk terlaris / unggulan di daftar menu pelanggan.</div>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" name="terlaris" value="1" id="toggle-terlaris"
+                            {{ $currentTerlaris ? 'checked' : '' }}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
