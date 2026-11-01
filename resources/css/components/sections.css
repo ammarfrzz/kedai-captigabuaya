@@ -965,6 +965,11 @@
     padding: 0;
 }
 
+.menu-card__btn-cart svg,
+.menu-card__btn-cart svg * {
+    pointer-events: none !important;
+}
+
 .menu-card__btn-cart:hover {
     background: #234E2F;
     color: #FFFFFF;

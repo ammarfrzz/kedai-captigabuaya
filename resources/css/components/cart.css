@@ -63,7 +63,7 @@
     height: 20px;
     padding: 0 5px;
     border-radius: 9999px;
-    display: flex;
+    display: none; /* Disembunyikan saat kosong */
     align-items: center;
     justify-content: center;
     border: 2px solid #234E2F;

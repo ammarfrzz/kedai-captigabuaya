@@ -361,20 +361,6 @@ document.head.appendChild(revealStyle);
 /* ── Floating Cart & Popup Drawer System ─────────── */
 const CART_STORAGE_KEY = 'ctb_cart_items';
 
-// Reset keranjang jika pengguna me-refresh halaman (reload)
-(() => {
-    try {
-        const perfEntries = performance.getEntriesByType('navigation');
-        const isReload = (perfEntries.length > 0 && perfEntries[0].type === 'reload') ||
-                         (window.performance && window.performance.navigation && window.performance.navigation.type === 1);
-        if (isReload) {
-            localStorage.removeItem(CART_STORAGE_KEY);
-        }
-    } catch (e) {
-        // Fallback jika performance API tidak didukung
-    }
-})();
-
 const getCart = () => {
     try {
         const stored = localStorage.getItem(CART_STORAGE_KEY);
@@ -434,6 +420,7 @@ const updateCartUI = () => {
     // Update Floating Button
     if (floatingCartBadge) {
         floatingCartBadge.textContent = totalItems;
+        floatingCartBadge.style.display = totalItems > 0 ? 'flex' : 'none';
     }
     if (floatingCartTotal) {
         floatingCartTotal.textContent = formatRupiah(subtotal);
@@ -591,7 +578,20 @@ if (cartDrawerBackdrop) {
 }
 if (cartDrawerClearBtn) {
     cartDrawerClearBtn.addEventListener('click', () => {
-        if (confirm('Apakah kamu yakin ingin mengosongkan seluruh pesanan di keranjang?')) {
+        if (window.showCustomConfirm) {
+            window.showCustomConfirm({
+                title: 'Kosongkan Keranjang?',
+                message: 'Apakah kamu yakin ingin mengosongkan seluruh menu dari keranjang pesanan?',
+                type: 'warning',
+                confirmText: 'Ya, Kosongkan',
+                cancelText: 'Batal',
+                onConfirm: () => {
+                    saveCart({});
+                    updateCartUI();
+                    showToast('Keranjang telah dikosongkan');
+                }
+            });
+        } else if (confirm('Apakah kamu yakin ingin mengosongkan seluruh pesanan di keranjang?')) {
             saveCart({});
             updateCartUI();
             showToast('Keranjang telah dikosongkan');
@@ -606,61 +606,100 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-// Event listener Tambah ke Keranjang (Tombol icon keranjang +)
-document.querySelectorAll('.btn-add-cart').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const id = btn.dataset.id;
-        const name = btn.dataset.name;
-        const price = parseInt(btn.dataset.price, 10);
-        const img = btn.dataset.img;
+// Event listener Tambah ke Keranjang (Anti-double-fire terpusat dengan window lock & pointer disable)
+let lastAddCartTime = 0;
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-add-cart');
+    if (!btn) return;
 
-        const cart = getCart();
-        if (cart[id]) {
-            cart[id].qty += 1;
-        } else {
-            cart[id] = { id, name, price, img, qty: 1 };
-        }
+    e.preventDefault();
+    e.stopPropagation();
 
-        saveCart(cart);
-        updateCartUI();
+    // Lock per-button dan global 600ms agar mustahil terpicu 2 kali dalam 1 klik
+    const now = Date.now();
+    if (now - lastAddCartTime < 600 || btn.dataset.isAdding === 'true') {
+        return;
+    }
+    lastAddCartTime = now;
+    btn.dataset.isAdding = 'true';
+    btn.style.pointerEvents = 'none';
+    setTimeout(() => {
+        btn.dataset.isAdding = 'false';
+        btn.style.pointerEvents = '';
+    }, 600);
 
-        // Bounce badge
-        if (floatingCartBadge) {
-            floatingCartBadge.classList.remove('cart-badge-bounce');
-            void floatingCartBadge.offsetWidth; // trigger reflow
-            floatingCartBadge.classList.add('cart-badge-bounce');
-        }
+    const id = btn.dataset.id;
+    const name = btn.dataset.name;
+    const price = parseInt(btn.dataset.price, 10);
+    const img = btn.dataset.img;
 
-        // Visual feedback pada icon button
-        btn.classList.add('added');
-        setTimeout(() => {
-            btn.classList.remove('added');
-        }, 800);
+    const cart = getCart();
+    if (cart[id]) {
+        cart[id].qty += 1;
+    } else {
+        cart[id] = { id, name, price, img, qty: 1 };
+    }
 
-        showToast(`${name} ditambahkan ke keranjang!`);
-    });
-});
+    saveCart(cart);
+    updateCartUI();
 
-// Event listener "Pesan Sekarang" (Langsung arahkan ke Halaman Pembayaran hanya membawa menu ini saja)
-document.querySelectorAll('.btn-buy-now').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const id = btn.dataset.id;
-        const name = btn.dataset.name;
-        const price = parseInt(btn.dataset.price, 10);
-        const img = btn.dataset.img;
+    // Bounce badge
+    if (floatingCartBadge) {
+        floatingCartBadge.classList.remove('cart-badge-bounce');
+        void floatingCartBadge.offsetWidth; // trigger reflow
+        floatingCartBadge.classList.add('cart-badge-bounce');
+    }
 
-        // Hanya pesan menu yang diklik saat ini (tidak menggabungkan isi keranjang sebelumnya)
-        const singleItemCart = {};
-        singleItemCart[id] = { id, name, price, img, qty: 1 };
+    // Visual feedback pada icon button
+    btn.classList.add('added');
+    setTimeout(() => {
+        btn.classList.remove('added');
+    }, 800);
 
-        saveCart(singleItemCart);
+    showToast(`${name} ditambahkan ke keranjang!`);
+}, true);
 
-        const paymentUrl = btn.dataset.paymentUrl || '/pembayaran';
-        window.location.href = paymentUrl;
-    });
-});
+// Event listener "Pesan Sekarang" (Tambahkan ke keranjang yang sudah ada & langsung arahkan ke Halaman Pembayaran)
+let lastBuyNowTime = 0;
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-buy-now');
+    if (!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const now = Date.now();
+    if (now - lastBuyNowTime < 600 || btn.dataset.isBuying === 'true') return;
+    lastBuyNowTime = now;
+    btn.dataset.isBuying = 'true';
+    btn.style.pointerEvents = 'none';
+    setTimeout(() => {
+        btn.dataset.isBuying = 'false';
+        btn.style.pointerEvents = '';
+    }, 600);
+
+    const id = btn.dataset.id;
+    const name = btn.dataset.name;
+    const price = parseInt(btn.dataset.price, 10);
+    const img = btn.dataset.img;
+
+    // Tambahkan menu yang diklik ke dalam keranjang yang sudah ada (tidak mengosongkan pesanan sebelumnya)
+    const cart = getCart();
+    if (cart[id]) {
+        cart[id].qty += 1;
+    } else {
+        cart[id] = { id, name, price, img, qty: 1 };
+    }
+
+    saveCart(cart);
+    updateCartUI();
+
+    const paymentUrl = btn.dataset.paymentUrl || '/pembayaran';
+    window.location.href = paymentUrl;
+}, true);
+
+// Expose updateCartUI secara global agar modal/bar lain bisa menyegarkan status keranjang
+window.updateCartUI = updateCartUI;
 
 // Inisialisasi awal UI keranjang saat halaman dibuka
 updateCartUI();

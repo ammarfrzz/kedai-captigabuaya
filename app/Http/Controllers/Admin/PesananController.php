@@ -21,11 +21,20 @@ class PesananController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")
                   ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('table_number', 'like', "%{$search}%");
+                  ->orWhere('table_number', 'like', "%{$search}%")
+                  ->orWhere('customer_phone', 'like', "%{$search}%");
             });
         }
 
-        $orders = $query->paginate(15);
+        if ($status = $request->input('status')) {
+            $query->where('order_status', $status);
+        }
+
+        if ($payment = $request->input('payment')) {
+            $query->where('payment_status', $payment);
+        }
+
+        $orders = $query->paginate(15)->withQueryString();
 
         return view('admin.pesanan.dine_in', compact('orders'));
     }
@@ -37,11 +46,20 @@ class PesananController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%");
+                  ->orWhere('customer_name', 'like', "%{$search}%")
+                  ->orWhere('customer_phone', 'like', "%{$search}%");
             });
         }
 
-        $orders = $query->paginate(15);
+        if ($status = $request->input('status')) {
+            $query->where('order_status', $status);
+        }
+
+        if ($payment = $request->input('payment')) {
+            $query->where('payment_status', $payment);
+        }
+
+        $orders = $query->paginate(15)->withQueryString();
 
         return view('admin.pesanan.take_away', compact('orders'));
     }
@@ -68,5 +86,33 @@ class PesananController extends Controller
         $order->update(array_filter($validated));
 
         return back()->with('success', 'Status pesanan berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus pesanan (hanya untuk pesanan dengan status 'cancelled').
+     */
+    public function destroy(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        // Hanya pesanan dengan status 'cancelled' yang boleh dihapus
+        if ($order->order_status !== 'cancelled') {
+            return back()->with('error', 'Hanya pesanan dengan status "Dibatalkan" yang dapat dihapus dari sistem.');
+        }
+
+        $orderNumber = $order->order_number;
+        $orderType = $order->order_type;
+
+        $order->delete();
+
+        // Jika dipanggil dari halaman detail pesanan, arahkan kembali ke daftar pesanan
+        if ($request->input('from_show') || url()->previous() === route('admin.pesanan.show', $id)) {
+            $redirectRoute = ($orderType === 'take_away') 
+                ? route('admin.pesanan.take_away') 
+                : route('admin.pesanan.dine_in');
+            return redirect($redirectRoute)->with('success', "Pesanan #{$orderNumber} yang dibatalkan telah berhasil dihapus dari sistem.");
+        }
+
+        return back()->with('success', "Pesanan #{$orderNumber} yang dibatalkan telah berhasil dihapus dari sistem.");
     }
 }

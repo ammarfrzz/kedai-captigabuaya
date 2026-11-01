@@ -48,6 +48,9 @@
     {{-- Floating Cart & Popup Drawer --}}
     @include('partials.cart-drawer')
 
+    {{-- Custom Modals & Reminder Popup --}}
+    @include('partials.custom-modals')
+
     @stack('scripts')
 </body>
 </html>

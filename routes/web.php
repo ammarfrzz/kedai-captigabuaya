@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran');
 Route::post('/pembayaran/checkout', [PaymentController::class, 'checkout'])->name('pembayaran.checkout');
+Route::post('/pembayaran/batal', [PaymentController::class, 'cancelOrder'])->name('pembayaran.cancel');
 Route::get('/konfirmasi-pembayaran', [PaymentController::class, 'confirmation'])->name('pembayaran.confirmation');
 
 // Admin Guest Routes (Login)
@@ -44,6 +45,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/pesanan/baru', [AdminPesananController::class, 'create'])->name('pesanan.create');
     Route::get('/pesanan/{id}', [AdminPesananController::class, 'show'])->name('pesanan.show');
     Route::patch('/pesanan/{id}/status', [AdminPesananController::class, 'updateStatus'])->name('pesanan.updateStatus');
+    Route::delete('/pesanan/{id}', [AdminPesananController::class, 'destroy'])->name('pesanan.destroy');
 
     // Kelola Banner & Gambar Landing Page
     Route::get('/banner', [AdminBannerController::class, 'index'])->name('banner.index');

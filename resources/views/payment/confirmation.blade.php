@@ -111,7 +111,7 @@
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <span>Sisa Waktu :<strong id="qrisConfirmTimer">05:00</strong></span>
+                                <span>Sisa Waktu :<strong id="qrisConfirmTimer">01:00</strong></span>
                             </div>
                             <button type="button" class="qris-refresh-btn" id="btnRefreshConfirmQris">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -290,6 +290,10 @@
                                     <polyline points="9 18 15 12 9 6"></polyline>
                                 </svg>
                             </a>
+
+                            <button type="button" class="confirm-btn-cancel-qris" id="btnCancelOrderPage" style="display: none; width: 100%; margin-top: 8px; padding: 10px; background: transparent; color: #DC2626; border: 1.5px solid #FCA5A5; border-radius: 9px; font-family: inherit; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;">
+                                Batalkan Pesanan Ini
+                            </button>
                         </div>
 
                     </div>
@@ -389,8 +393,10 @@
 
             // Cek Metode Pembayaran (QRIS Dinamis vs Tunai di Kasir)
             const isQRIS = order.paymentMethod && order.paymentMethod.toLowerCase().includes('qris');
+            const btnCancelPage = document.getElementById('btnCancelOrderPage');
 
             if (isQRIS) {
+                if (btnCancelPage) btnCancelPage.style.display = 'block';
                 // Tampilkan Card QRIS Dinamis
                 qrisSection.style.display = 'block';
                 cashSection.style.display = 'none';
@@ -431,30 +437,47 @@
 
                 loadQrImage();
 
-                // Countdown Timer 5 menit
-                let timeRemaining = 300;
+                // Countdown Timer 1 menit (60 detik)
+                let timeRemaining = 60;
                 let timerInterval = null;
 
                 function updateCountdown() {
                     const m = Math.floor(timeRemaining / 60);
                     const s = timeRemaining % 60;
                     qrisConfirmTimer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                    qrisConfirmTimer.style.color = timeRemaining < 60 ? '#BE1E2D' : '#15803D';
+                    qrisConfirmTimer.style.color = timeRemaining < 20 ? '#BE1E2D' : '#15803D';
                 }
 
                 function startTimer() {
                     clearInterval(timerInterval);
-                    timeRemaining = 300;
+                    timeRemaining = 60;
                     updateCountdown();
 
                     timerInterval = setInterval(() => {
                         timeRemaining--;
                         if (timeRemaining <= 0) {
                             clearInterval(timerInterval);
-                            qrisConfirmTimer.textContent = 'Kedaluwarsa (Silakan Segarkan)';
+                            qrisConfirmTimer.textContent = 'Kedaluwarsa (Pesanan Dibatalkan)';
                             qrisConfirmTimer.style.color = '#BE1E2D';
-                            qrisConfirmImg.style.opacity = '0.35';
+                            qrisConfirmImg.style.opacity = '0.25';
                             qrisConfirmImg.style.filter = 'grayscale(100%)';
+
+                            // Hapus pesanan QRIS dari database karena batas waktu 1 menit telah habis
+                            fetch("{{ route('pembayaran.cancel') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    order_number: order.id,
+                                    order_id: order.dbId || null
+                                })
+                            }).catch(console.error);
+
+                            localStorage.removeItem('ctb_pending_payment');
+                            sessionStorage.removeItem('ctb_current_order');
                         } else {
                             updateCountdown();
                         }
@@ -488,7 +511,50 @@
                 document.getElementById('cashTransId').textContent = order.id;
                 document.getElementById('cashGuideCustName').textContent = order.customerName;
             }
+
+            // Saat customer menekan "Pesan Menu Lain / Selesai", hapus status pending payment
+            const btnHome = document.querySelector('.confirm-btn-home');
+            if (btnHome) {
+                btnHome.addEventListener('click', () => {
+                    localStorage.removeItem('ctb_pending_payment');
+                    sessionStorage.removeItem('ctb_current_order');
+                });
+            }
+
+            // Tombol Batalkan Pesanan QRIS di Halaman Konfirmasi
+            if (btnCancelPage) {
+                btnCancelPage.addEventListener('click', () => {
+                    window.showCustomConfirm({
+                        title: 'Batalkan Pesanan QRIS?',
+                        message: 'Pesanan ini belum dibayar dan akan langsung dihapus dari sistem antrean dapur.',
+                        type: 'warning',
+                        confirmText: 'Ya, Batalkan Pesanan',
+                        cancelText: 'Lanjutkan Bayar',
+                        onConfirm: function() {
+                            fetch("{{ route('pembayaran.cancel') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    order_number: order.id,
+                                    order_id: order.dbId || null
+                                })
+                            }).finally(() => {
+                                localStorage.removeItem('ctb_pending_payment');
+                                sessionStorage.removeItem('ctb_current_order');
+                                window.location.href = "{{ url('/') }}";
+                            });
+                        }
+                    });
+                });
+            }
         });
     </script>
+
+    {{-- Custom Modals & Reminder Popup --}}
+    @include('partials.custom-modals')
 </body>
 </html>
