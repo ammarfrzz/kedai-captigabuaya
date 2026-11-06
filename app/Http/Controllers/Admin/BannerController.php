@@ -39,8 +39,13 @@ class BannerController extends Controller
     {
         $request->validate([
             'media_id' => 'required|string',
-            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:20480',
             'custom_url' => 'nullable|url|max:1000',
+        ], [
+            'image_file.image' => 'Berkas yang diunggah harus berupa gambar valid.',
+            'image_file.mimes' => 'Format file gambar harus JPG, PNG, WEBP, atau SVG.',
+            'image_file.max' => 'Ukuran file banner maksimal adalah 20 MB.',
+            'custom_url.url' => 'Format tautan URL tidak valid.',
         ]);
 
         $mediaId = $request->input('media_id');
@@ -54,10 +59,10 @@ class BannerController extends Controller
         $success = LandingMedia::updateMedia($mediaId, $customUrl, $uploadedFile);
 
         if ($success) {
-            return redirect()->back()->with('success', 'Gambar website landing page berhasil diperbarui!');
+            return redirect()->back()->with('success', 'Gambar banner berhasil diperbarui!');
         }
 
-        return redirect()->back()->with('error', 'Gagal memperbarui gambar. Periksa format file Anda.');
+        return redirect()->back()->with('error', 'Gagal memperbarui gambar. Periksa format atau ukuran file Anda.');
     }
 
     /**
