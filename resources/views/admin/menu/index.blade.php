@@ -47,40 +47,50 @@
                 <th>Nama Menu <i class="fa-solid fa-sort" style="opacity:.4; margin-left:4px;"></i></th>
                 <th>Kategori</th>
                 <th>Harga</th>
+                <th>Tag</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody id="menu-table-body">
             @php
-            $displayMenus = isset($menus) && count($menus) > 0 ? $menus : \App\Models\Menu::all();
+            $displayMenus = isset($menus) && count($menus) > 0 ? $menus : \App\Models\Menu::orderByDesc('terlaris')->orderBy('id', 'desc')->get();
             @endphp
 
             @foreach($displayMenus as $m)
-            <tr class="menu-row" data-category="{{ $m['kategori'] ?? '' }}" data-name="{{ strtolower($m['nama'] ?? '') }}">
+            <tr class="menu-row" data-category="{{ $m->kategori ?? '' }}" data-name="{{ strtolower($m->nama ?? '') }}">
                 <td>
-                    @if(!empty($m['gambar']))
-                        <img src="{{ $m['gambar'] }}" alt="{{ $m['nama'] }}" style="width:46px; height:46px; border-radius:8px; object-fit:cover; border:1px solid var(--border); display:block;">
+                    @if(!empty($m->gambar))
+                        <img src="{{ $m->gambar }}" alt="{{ $m->nama }}" style="width:46px; height:46px; border-radius:8px; object-fit:cover; border:1px solid var(--border); display:block;">
                     @else
                         <div class="menu-thumb">🍽️</div>
                     @endif
                 </td>
                 <td>
-                    <div style="font-weight:700; font-size:14px; color:var(--text-1);">{{ $m['nama'] }}</div>
+                    <div style="font-weight:700; font-size:14px; color:var(--text-1);">{{ $m->nama }}</div>
                 </td>
                 <td>
                     <span class="badge" style="background:#f1f5f9; color:#334155; text-transform:capitalize; font-weight:600;">
-                        {{ $m['kategori'] }}
+                        {{ $m->kategori }}
                     </span>
                 </td>
                 <td style="font-weight:700; color:var(--green-700);">
-                    Rp {{ number_format($m['harga'], 0, ',', '.') }}
+                    Rp {{ number_format($m->harga, 0, ',', '.') }}
+                </td>
+                <td>
+                    @if($m->terlaris)
+                        <span class="badge" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-size:11.5px; gap:4px; font-weight:700;">
+                            <i class="fa-solid fa-medal" style="color:#d97706;"></i> Best Seller
+                        </span>
+                    @else
+                        <span style="color:var(--text-3); font-size:12px;">–</span>
+                    @endif
                 </td>
                 <td>
                     <div style="display:flex; gap:6px;">
-                        <a href="{{ route('admin.menu.edit', $m['id']) }}" class="icon-btn" title="Edit">
+                        <a href="{{ route('admin.menu.edit', $m->id) }}" class="icon-btn" title="Edit">
                             <i class="fa-solid fa-pen"></i>
                         </a>
-                        <form action="{{ route('admin.menu.destroy', $m['id']) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu {{ addslashes($m['nama']) }}?');" style="display:inline;">
+                        <form action="{{ route('admin.menu.destroy', $m->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu {{ addslashes($m->nama) }}?');" style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="icon-btn" title="Hapus" style="color:#ef4444; border-color:#fecaca; background:none; cursor:pointer;">

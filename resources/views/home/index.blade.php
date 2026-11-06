@@ -288,6 +288,20 @@
                         alt="Foto {{ $item['nama'] }}"
                         loading="lazy"
                     >
+                    @if(!empty($item['terlaris']))
+                    <div class="menu-card__medal" aria-label="Menu Terlaris (Best Seller)" title="Menu Terlaris (Best Seller)">
+                        <div class="medal-icon-wrap">
+                            <svg class="medal-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 13.5L4.5 21.5L12 18.5L19.5 21.5L17 13.5" fill="#ef4444" stroke="#b91c1c" stroke-width="1.2" stroke-linejoin="round"/>
+                                <path d="M12 13.5V18.5" stroke="#991b1b" stroke-width="1"/>
+                                <circle cx="12" cy="8.5" r="6.5" fill="#f59e0b" stroke="#b45309" stroke-width="1.5"/>
+                                <circle cx="12" cy="8.5" r="5" fill="#fde047"/>
+                                <polygon points="12,5 13.2,7.5 15.8,7.8 13.9,9.6 14.4,12.2 12,10.9 9.6,12.2 10.1,9.6 8.2,7.8 10.8,7.5" fill="#b45309"/>
+                            </svg>
+                        </div>
+                        <span class="medal-text">Best Seller</span>
+                    </div>
+                    @endif
                 </div>
                 <div class="menu-card__body">
                     <h3 class="menu-card__name">{{ $item['nama'] }}</h3>
@@ -528,6 +542,66 @@
 </section>
 
 @endsection
+
+@push('styles')
+<style>
+/* ── Best Seller Medal Badge (Pojok Kanan Atas) ────────── */
+.menu-card__medal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 20%, #f59e0b 70%, #d97706 100%);
+    color: #451a03;
+    padding: 4px 11px 4px 6px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 14px rgba(180, 83, 9, 0.38), 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 1.5px rgba(255, 255, 255, 0.9);
+    border: 1.5px solid #fde68a;
+    backdrop-filter: blur(4px);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+    user-select: none;
+    pointer-events: none;
+}
+
+.menu-card:hover .menu-card__medal {
+    transform: scale(1.06) rotate(-1deg);
+    box-shadow: 0 6px 18px rgba(180, 83, 9, 0.48), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.menu-card__medal .medal-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    flex-shrink: 0;
+}
+
+.menu-card__medal .medal-svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+.menu-card__medal .medal-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #451a03;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>

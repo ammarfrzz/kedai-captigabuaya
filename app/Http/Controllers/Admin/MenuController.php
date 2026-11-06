@@ -13,7 +13,7 @@ class MenuController extends Controller
 {
     public function index()
     {
-        $menus = Menu::orderBy('id', 'desc')->get();
+        $menus = Menu::orderByDesc('terlaris')->orderBy('id', 'desc')->get();
         return view('admin.menu.index', compact('menus'));
     }
 
@@ -36,15 +36,40 @@ class MenuController extends Controller
             'kategori'  => ['required', 'string'],
             'harga'     => ['required', 'numeric', 'min:0'],
             'deskripsi' => ['nullable', 'string'],
-            'foto'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'foto'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
+            'terlaris'  => ['nullable', 'boolean'],
+        ], [
+            'nama_menu.required' => 'Nama menu wajib diisi.',
+            'harga.required' => 'Harga menu wajib diisi.',
+            'harga.numeric' => 'Harga menu harus berupa angka.',
+            'foto.image' => 'File foto harus berupa gambar valid.',
+            'foto.mimes' => 'Format foto harus berupa JPG, PNG, atau WEBP.',
+            'foto.max' => 'Ukuran foto maksimal adalah 10 MB.',
         ]);
 
         $gambarPath = null;
-        if ($request->hasFile('foto')) {
+        if ($request->hasFile('foto') && $request->file('foto')->isValid()) {
             $file = $request->file('foto');
-            $filename = time() . '_' . Str::slug($validated['nama_menu']) . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('menus', $filename, 'public');
-            $gambarPath = asset('storage/' . $path);
+            $filename = time() . '_' . Str::slug($validated['nama_menu']) . '.' . ($file->getClientOriginalExtension() ?: 'jpg');
+            
+            $targetDir = public_path('images/menus');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0777, true);
+            }
+            $targetPath = $targetDir . DIRECTORY_SEPARATOR . $filename;
+
+            $realPath = $file->getRealPath();
+            $saved = false;
+            if ($realPath && file_exists($realPath)) {
+                $saved = @copy($realPath, $targetPath);
+            }
+            if (!$saved && method_exists($file, 'getContent')) {
+                $saved = (file_put_contents($targetPath, $file->getContent()) !== false);
+            }
+
+            if ($saved) {
+                $gambarPath = asset('images/menus/' . $filename);
+            }
         }
 
         // Cari atau hubungkan kategori
@@ -56,6 +81,7 @@ class MenuController extends Controller
             'nama'        => $validated['nama_menu'],
             'slug'        => Str::slug($validated['nama_menu']),
             'harga'       => $validated['harga'],
+            'terlaris'    => $request->boolean('terlaris'),
             'deskripsi'   => $validated['deskripsi'] ?? null,
             'gambar'      => $gambarPath ?? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
             'is_available'=> true,
@@ -80,7 +106,15 @@ class MenuController extends Controller
             'kategori'  => ['required', 'string'],
             'harga'     => ['required', 'numeric', 'min:0'],
             'deskripsi' => ['nullable', 'string'],
-            'foto'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'foto'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
+            'terlaris'  => ['nullable', 'boolean'],
+        ], [
+            'nama_menu.required' => 'Nama menu wajib diisi.',
+            'harga.required' => 'Harga menu wajib diisi.',
+            'harga.numeric' => 'Harga menu harus berupa angka.',
+            'foto.image' => 'File foto harus berupa gambar valid.',
+            'foto.mimes' => 'Format foto harus berupa JPG, PNG, atau WEBP.',
+            'foto.max' => 'Ukuran foto maksimal adalah 10 MB.',
         ]);
 
         $category = Category::where('slug', $validated['kategori'])->first();
@@ -91,14 +125,41 @@ class MenuController extends Controller
             'nama'        => $validated['nama_menu'],
             'slug'        => Str::slug($validated['nama_menu']),
             'harga'       => $validated['harga'],
+            'terlaris'    => $request->boolean('terlaris'),
             'deskripsi'   => $validated['deskripsi'],
         ];
 
-        if ($request->hasFile('foto')) {
+        if ($request->hasFile('foto') && $request->file('foto')->isValid()) {
             $file = $request->file('foto');
-            $filename = time() . '_' . Str::slug($validated['nama_menu']) . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('menus', $filename, 'public');
-            $menuData['gambar'] = asset('storage/' . $path);
+            $filename = time() . '_' . Str::slug($validated['nama_menu']) . '.' . ($file->getClientOriginalExtension() ?: 'jpg');
+            
+            $targetDir = public_path('images/menus');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0777, true);
+            }
+            $targetPath = $targetDir . DIRECTORY_SEPARATOR . $filename;
+
+            // Hapus gambar lama jika ada di images/menus
+            if (!empty($menu->gambar) && str_contains($menu->gambar, 'images/menus/')) {
+                $oldFilename = basename(parse_url($menu->gambar, PHP_URL_PATH));
+                $oldPath = public_path('images/menus/' . $oldFilename);
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+
+            $realPath = $file->getRealPath();
+            $saved = false;
+            if ($realPath && file_exists($realPath)) {
+                $saved = @copy($realPath, $targetPath);
+            }
+            if (!$saved && method_exists($file, 'getContent')) {
+                $saved = (file_put_contents($targetPath, $file->getContent()) !== false);
+            }
+
+            if ($saved) {
+                $menuData['gambar'] = asset('images/menus/' . $filename);
+            }
         }
 
         $menu->update($menuData);
