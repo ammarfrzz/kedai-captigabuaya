@@ -4,33 +4,68 @@
 
 @section('content')
 
+@if(session('success'))
+<div style="background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d; border-radius:var(--radius-md); padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; gap:12px; font-weight:600; box-shadow:var(--shadow-sm);">
+    <i class="fa-solid fa-circle-check" style="font-size:18px;"></i>
+    <span>{{ session('success') }}</span>
+</div>
+@endif
+
+@if(session('error'))
+<div style="background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:var(--radius-md); padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; gap:12px; font-weight:600; box-shadow:var(--shadow-sm);">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size:18px;"></i>
+    <span>{{ session('error') }}</span>
+</div>
+@endif
+
+@if(isset($errors) && $errors->any())
+<div style="background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:var(--radius-md); padding:14px 18px; margin-bottom:20px; display:flex; align-items:flex-start; gap:12px; font-weight:600; box-shadow:var(--shadow-sm);">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size:18px; margin-top:2px;"></i>
+    <div style="flex:1;">
+        <div style="margin-bottom:4px; font-weight:700;">Gagal memperbarui data:</div>
+        <ul style="margin:0; padding-left:18px; font-size:13px; font-weight:500;">
+            @foreach($errors->all() as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+</div>
+@endif
+
 <!-- PROFILE HERO HEADER -->
 <div class="account-hero-card">
     <div class="account-hero-bg"></div>
     <div class="account-hero-content">
         <div class="account-hero-avatar-wrap">
-            <img src="{{ asset('images/avatar-budi.jpg') }}" alt="Foto Profil" id="avatar-preview">
-            <button type="button" class="account-avatar-btn" onclick="document.getElementById('avatar-input').click()" title="Ganti Foto">
+            <img src="{{ $user->avatar_url }}" alt="Foto Profil" id="avatar-preview">
+            <button type="button" class="account-avatar-btn" onclick="document.getElementById('avatar-input').click()" title="Ganti Foto Profil">
                 <i class="fa-solid fa-camera"></i>
             </button>
-            <input type="file" id="avatar-input" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
+            <input type="file" name="avatar" id="avatar-input" form="form-profile" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previewAvatar(this)">
         </div>
 
         <div class="account-hero-info">
-            <h2>Budi Santoso</h2>
-            <p class="account-hero-desc">Kelola preferensi akun, kredensial autentikasi, dan pantau log aktivitas sistem operasional.</p>
+            <h2>{{ $user->name }}</h2>
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:4px;">
+                <span style="display:inline-flex; align-items:center; gap:5px; font-size:12px; background:rgba(45,122,64,0.1); color:var(--green-800); font-weight:700; padding:3px 10px; border-radius:20px;">
+                    <i class="fa-solid fa-shield-halved"></i> Administrator
+                </span>
+                <span style="font-size:12.5px; color:var(--text-3); display:inline-flex; align-items:center; gap:5px;">
+                    <i class="fa-regular fa-envelope"></i> {{ $user->email }}
+                </span>
+            </div>
         </div>
     </div>
 
     <!-- MODERN NAVIGATION BAR -->
     <div class="account-nav-bar">
-        <button type="button" class="account-nav-item active" onclick="switchTab(this, 'tab-profil')">
+        <button type="button" class="account-nav-item active" id="btn-tab-profil" onclick="switchTab(this, 'tab-profil')">
             <i class="fa-regular fa-id-card"></i> Informasi Profil
         </button>
-        <button type="button" class="account-nav-item" onclick="switchTab(this, 'tab-keamanan')">
+        <button type="button" class="account-nav-item" id="btn-tab-keamanan" onclick="switchTab(this, 'tab-keamanan')">
             <i class="fa-solid fa-lock"></i> Keamanan &amp; Sandi
         </button>
-        <button type="button" class="account-nav-item" onclick="switchTab(this, 'tab-log')">
+        <button type="button" class="account-nav-item" id="btn-tab-log" onclick="switchTab(this, 'tab-log')">
             <i class="fa-solid fa-clock-rotate-left"></i> Log Aktivitas
         </button>
     </div>
@@ -52,49 +87,53 @@
                 </div>
             </div>
             <div class="account-box-body">
-                <div class="form-grid-2">
-                    <div class="account-form-group">
-                        <label class="account-label">Nama Lengkap <span class="text-danger">*</span></label>
-                        <div class="input-with-icon">
-                            <i class="fa-regular fa-user input-icon"></i>
-                            <input type="text" class="account-input" value="Budi Santoso" placeholder="Masukkan nama lengkap">
-                        </div>
-                    </div>
-                    <div class="account-form-group">
-                        <label class="account-label">Username Sistem <span class="text-danger">*</span></label>
-                        <div class="input-with-icon">
-                            <i class="fa-solid fa-at input-icon"></i>
-                            <input type="text" class="account-input" value="budi.santoso-admin" placeholder="Username login">
-                        </div>
-                    </div>
-                </div>
+                <form action="{{ route('admin.akun.update') }}" method="POST" id="form-profile" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
 
-                <div class="form-grid-2">
-                    <div class="account-form-group">
-                        <label class="account-label">Alamat Email Resmi <span class="text-danger">*</span></label>
-                        <div class="input-with-icon">
-                            <i class="fa-regular fa-envelope input-icon"></i>
-                            <input type="email" class="account-input" value="budi.santoso@kedaicaptigabuaya.id" placeholder="nama@email.com">
+                    <div class="form-grid-2">
+                        <div class="account-form-group">
+                            <label class="account-label">Nama Lengkap <span class="text-danger">*</span></label>
+                            <div class="input-with-icon">
+                                <i class="fa-regular fa-user input-icon"></i>
+                                <input type="text" name="name" class="account-input" value="{{ old('name', $user->name) }}" placeholder="Masukkan nama lengkap" required>
+                            </div>
+                        </div>
+                        <div class="account-form-group">
+                            <label class="account-label">Alamat Email Resmi <span class="text-danger">*</span></label>
+                            <div class="input-with-icon">
+                                <i class="fa-regular fa-envelope input-icon"></i>
+                                <input type="email" name="email" class="account-input" value="{{ old('email', $user->email) }}" placeholder="nama@email.com" required>
+                            </div>
                         </div>
                     </div>
-                    <div class="account-form-group">
-                        <label class="account-label">Nomor WhatsApp / Kontak <span class="text-danger">*</span></label>
-                        <div class="input-with-icon">
-                            <i class="fa-brands fa-whatsapp input-icon"></i>
-                            <input type="text" class="account-input" value="+62 812-3456-7890" placeholder="+62 ...">
-                        </div>
-                    </div>
-                </div>
 
-                <div class="form-grid-2" style="margin-bottom:0;">
-                    <div class="account-form-group" style="margin-bottom:0;">
-                        <label class="account-label">STATUS ROLE</label>
-                        <div class="input-with-icon">
-                            <i class="fa-solid fa-building-user input-icon"></i>
-                            <input type="text" class="account-input" value="Manajemen Pusat" placeholder="Departemen">
+                    <div class="form-grid-2">
+                        <div class="account-form-group">
+                            <label class="account-label">STATUS ROLE</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-building-user input-icon"></i>
+                                <input type="text" class="account-input readonly" value="Administrator Utama" readonly>
+                            </div>
+                        </div>
+                        <div class="account-form-group">
+                            <label class="account-label">TERDAFTAR SEJAK</label>
+                            <div class="input-with-icon">
+                                <i class="fa-regular fa-calendar-check input-icon"></i>
+                                <input type="text" class="account-input readonly" value="{{ $user->created_at ? $user->created_at->translatedFormat('d F Y, H:i') . ' WIB' : 'Akun Sistem' }}" readonly>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <div style="padding-top:18px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div id="avatar-selected-hint" style="display:none; align-items:center; gap:6px; font-size:12.5px; color:var(--green-700); font-weight:600;">
+                            <i class="fa-solid fa-circle-check"></i> Foto profil baru siap disimpan.
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="padding:10px 22px; margin-left:auto;">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan Informasi Profil
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -112,29 +151,40 @@
                 </div>
             </div>
             <div class="account-box-body">
-                <div class="account-form-group" style="max-width:540px;">
-                    <label class="account-label">Password Saat Ini <span class="text-danger">*</span></label>
-                    <div class="input-with-icon">
-                        <i class="fa-solid fa-lock input-icon"></i>
-                        <input type="password" class="account-input" placeholder="Masukkan password saat ini">
-                    </div>
-                </div>
+                <form action="{{ route('admin.akun.update') }}" method="POST">
+                    @csrf
+                    @method('PUT')
 
-                <div class="account-form-group" style="max-width:540px;">
-                    <label class="account-label">Password Baru <span class="text-danger">*</span></label>
-                    <div class="input-with-icon">
-                        <i class="fa-solid fa-shield-halved input-icon"></i>
-                        <input type="password" class="account-input" placeholder="Minimal 8 karakter">
+                    <div class="account-form-group" style="max-width:540px;">
+                        <label class="account-label">Password Saat Ini <span class="text-danger">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password" name="current_password" class="account-input" placeholder="Masukkan password saat ini" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="account-form-group" style="max-width:540px; margin-bottom:0;">
-                    <label class="account-label">Konfirmasi Password Baru <span class="text-danger">*</span></label>
-                    <div class="input-with-icon">
-                        <i class="fa-solid fa-check-double input-icon"></i>
-                        <input type="password" class="account-input" placeholder="Ulangi password baru">
+                    <div class="account-form-group" style="max-width:540px;">
+                        <label class="account-label">Password Baru <span class="text-danger">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-shield-halved input-icon"></i>
+                            <input type="password" name="new_password" class="account-input" placeholder="Minimal 8 karakter" required>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="account-form-group" style="max-width:540px; margin-bottom:20px;">
+                        <label class="account-label">Konfirmasi Password Baru <span class="text-danger">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-check-double input-icon"></i>
+                            <input type="password" name="new_password_confirmation" class="account-input" placeholder="Ulangi password baru" required>
+                        </div>
+                    </div>
+
+                    <div style="padding-top:18px; border-top:1px solid var(--border); display:flex; justify-content:flex-end;">
+                        <button type="submit" class="btn btn-primary" style="padding:10px 22px;">
+                            <i class="fa-solid fa-key"></i> Perbarui Kata Sandi
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -154,11 +204,10 @@
             <div class="account-box-body" style="padding-top:12px;">
                 @php
                 $logs = [
-                    ['icon'=>'fa-right-to-bracket','color'=>'#16a34a','bg'=>'#dcfce7','action'=>'Login Berhasil ke Sistem','detail'=>'Chrome 118 – Windows 11 · IP 192.168.1.164','time'=>'24 Okt 2023, 10:45 WIB'],
-                    ['icon'=>'fa-pen-to-square','color'=>'#2563eb','bg'=>'#dbeafe','action'=>'Update status pesanan ORD-20231024-089','detail'=>'Status: Menunggu Konfirmasi → Sedang Diproses','time'=>'24 Okt 2023, 13:02 WIB'],
-                    ['icon'=>'fa-bowl-food','color'=>'#ea580c','bg'=>'#ffedd5','action'=>'Tambah menu baru: Es Teh Manis Heritage','detail'=>'Kategori Minuman · Harga Rp 8.000','time'=>'24 Okt 2023, 09:15 WIB'],
-                    ['icon'=>'fa-right-from-bracket','color'=>'#ef4444','bg'=>'#fee2e2','action'=>'Keluar dari Sesi (Logout)','detail'=>'Sesi berakhir secara manual melalui navigasi profil','time'=>'23 Okt 2023, 18:30 WIB'],
-                    ['icon'=>'fa-right-to-bracket','color'=>'#16a34a','bg'=>'#dcfce7','action'=>'Login Berhasil ke Sistem','detail'=>'Chrome 118 – Windows 11 · IP 192.168.1.164','time'=>'23 Okt 2023, 08:00 WIB'],
+                    ['icon'=>'fa-right-to-bracket','color'=>'#16a34a','bg'=>'#dcfce7','action'=>'Login Berhasil ke Sistem Admin','detail'=>'Sesi aktif saat ini · Browser Web','time'=>'Hari ini'],
+                    ['icon'=>'fa-pen-to-square','color'=>'#2563eb','bg'=>'#dbeafe','action'=>'Pembaruan Terakhir Profil Akun','detail'=>'Sinkronisasi data kredensial admin kedai','time'=> $user->updated_at ? $user->updated_at->translatedFormat('d M Y, H:i') . ' WIB' : 'Baru saja'],
+                    ['icon'=>'fa-images','color'=>'#0891b2','bg'=>'#cffafe','action'=>'Akses Manajemen Banner & Media','detail'=>'Kelola banner landing page Kedai Cap Tiga Buaya','time'=>'Hari ini'],
+                    ['icon'=>'fa-utensils','color'=>'#ea580c','bg'=>'#ffedd5','action'=>'Akses Manajemen Menu & Pesanan','detail'=>'Pemantauan transaksi Dine In & Take Away','time'=>'Hari ini'],
                 ];
                 @endphp
 
@@ -177,12 +226,6 @@
                         </div>
                     </div>
                     @endforeach
-                </div>
-
-                <div style="text-align:center; margin-top:20px;">
-                    <button class="btn btn-outline btn-sm" style="padding:8px 20px;">
-                        <i class="fa-solid fa-arrows-rotate"></i> Muat Aktivitas Lainnya
-                    </button>
                 </div>
             </div>
         </div>
@@ -501,14 +544,6 @@
 
 @endsection
 
-@section('footer_bar')
-<span class="footer-bar-left" style="font-size:12.5px; color:var(--text-3);">
-    <i class="fa-regular fa-clock"></i> Terakhir diperbarui oleh sistem pada 24 Okt 2023, 10:45 WIB
-</span>
-<button class="btn btn-outline" type="button">Batalkan Perubahan</button>
-<button class="btn btn-primary" type="button"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
-@endsection
-
 @push('scripts')
 <script>
 function switchTab(btn, tabId) {
@@ -524,12 +559,29 @@ function switchTab(btn, tabId) {
 
 function previewAvatar(input) {
     if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran file foto terlalu besar. Maksimal 5 MB.');
+            input.value = '';
+            return;
+        }
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('avatar-preview').src = e.target.result;
+            const hint = document.getElementById('avatar-selected-hint');
+            if (hint) hint.style.display = 'inline-flex';
         };
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(file);
     }
 }
+
+@if(isset($errors) && ($errors->has('current_password') || $errors->has('new_password') || $errors->has('new_password_confirmation')))
+document.addEventListener('DOMContentLoaded', function() {
+    const btnKeamanan = document.getElementById('btn-tab-keamanan');
+    if (btnKeamanan) {
+        switchTab(btnKeamanan, 'tab-keamanan');
+    }
+});
+@endif
 </script>
 @endpush
