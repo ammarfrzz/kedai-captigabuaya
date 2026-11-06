@@ -34,7 +34,7 @@
                 <span class="payment-header__title">Kedai Cap Tiga Buaya</span>
             </div>
 
-            <a href="{{ url('/') }}" class="payment-header__back-btn">
+            <a href="{{ url('/') }}" class="payment-header__back-btn" id="btnHeaderHome">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -521,34 +521,53 @@
                 });
             }
 
+            // Fungsi batalkan pesanan ke backend & redirect ke halaman utama
+            const handleCancelOrder = function() {
+                window.showCustomConfirm({
+                    title: 'Batalkan Pesanan QRIS?',
+                    message: 'Pesanan ini belum dibayar dan akan langsung dihapus dari sistem antrean dapur.',
+                    type: 'warning',
+                    confirmText: 'Ya, Batalkan Pesanan',
+                    cancelText: 'Lanjutkan Bayar',
+                    onConfirm: function() {
+                        fetch("{{ route('pembayaran.cancel') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                order_number: order.id,
+                                order_id: order.dbId || null
+                            })
+                        }).finally(() => {
+                            localStorage.removeItem('ctb_pending_payment');
+                            sessionStorage.removeItem('ctb_current_order');
+                            window.location.href = "{{ url('/') }}";
+                        });
+                    }
+                });
+            };
+
             // Tombol Batalkan Pesanan QRIS di Halaman Konfirmasi
             if (btnCancelPage) {
-                btnCancelPage.addEventListener('click', () => {
-                    window.showCustomConfirm({
-                        title: 'Batalkan Pesanan QRIS?',
-                        message: 'Pesanan ini belum dibayar dan akan langsung dihapus dari sistem antrean dapur.',
-                        type: 'warning',
-                        confirmText: 'Ya, Batalkan Pesanan',
-                        cancelText: 'Lanjutkan Bayar',
-                        onConfirm: function() {
-                            fetch("{{ route('pembayaran.cancel') }}", {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    order_number: order.id,
-                                    order_id: order.dbId || null
-                                })
-                            }).finally(() => {
-                                localStorage.removeItem('ctb_pending_payment');
-                                sessionStorage.removeItem('ctb_current_order');
-                                window.location.href = "{{ url('/') }}";
-                            });
-                        }
-                    });
+                btnCancelPage.addEventListener('click', handleCancelOrder);
+            }
+
+            // Tombol "Halaman Utama" di Header Pojok Kanan Atas
+            const btnHeaderHome = document.getElementById('btnHeaderHome');
+            if (btnHeaderHome) {
+                btnHeaderHome.addEventListener('click', (e) => {
+                    // Jika metode bayar QRIS, samakan konfirmasinya agar pesanan dibatalkan jika kembali ke beranda
+                    if (isQRIS) {
+                        e.preventDefault();
+                        handleCancelOrder();
+                    } else {
+                        // Jika Tunai / Kasir, pesanan sudah tercatat, langsung izinkan kembali ke beranda
+                        localStorage.removeItem('ctb_pending_payment');
+                        sessionStorage.removeItem('ctb_current_order');
+                    }
                 });
             }
         });

@@ -524,21 +524,7 @@
                     };
 
                     sessionStorage.setItem('ctb_current_order', JSON.stringify(orderData));
-
-                    // Perbarui pending payment dengan durasi 1 Menit (60 detik) KHUSUS QRIS jika keluar ke menu
-                    const isQRIS = selectedMethod && selectedMethod.toLowerCase().includes('qris');
-                    if (isQRIS) {
-                        localStorage.setItem('ctb_pending_payment', JSON.stringify({
-                            orderId: transactionId,
-                            dbId: data.order.order_id,
-                            paymentMethod: 'qris',
-                            total: totalAmount,
-                            expiresAt: Date.now() + (60 * 1000), // 1 menit saja
-                            url: "{{ route('pembayaran.confirmation') }}"
-                        }));
-                    } else {
-                        localStorage.removeItem('ctb_pending_payment');
-                    }
+                    localStorage.removeItem('ctb_pending_payment');
 
                     // Bersihkan keranjang belanja
                     localStorage.removeItem(CART_STORAGE_KEY);
