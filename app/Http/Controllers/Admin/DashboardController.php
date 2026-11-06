@@ -19,9 +19,6 @@ class DashboardController extends Controller
         $totalRevenue      = Order::where('payment_status', 'paid')->sum('total');
         $activeMenusCount  = Menu::where('is_available', true)->count();
 
-        // ── Pesanan Terbaru ──
-        $recentOrders = Order::with('items')->latest()->take(5)->get();
-
         // ── Stat Minggu Ini ──
         $startOfWeek = Carbon::now()->startOfWeek();
         $weekRevenue = Order::where('payment_status', 'paid')
@@ -54,7 +51,6 @@ class DashboardController extends Controller
             'todayOrdersCount',
             'totalRevenue',
             'activeMenusCount',
-            'recentOrders',
             'weekRevenue',
             'weekOrders',
             'weekAvgDaily',
