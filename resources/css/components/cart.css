@@ -71,29 +71,6 @@
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.floating-cart-label {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    line-height: 1.2;
-}
-
-.floating-cart-title {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.8);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.floating-cart-total {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: #FFFFFF;
-    letter-spacing: -0.01em;
-}
-
 /* Bounce animation when item added */
 .cart-badge-bounce {
     animation: cartBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -166,15 +143,6 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-}
-
-.cart-drawer__count-badge {
-    background: rgba(35, 78, 47, 0.12);
-    color: #234E2F;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
 }
 
 .cart-drawer__close-btn {
