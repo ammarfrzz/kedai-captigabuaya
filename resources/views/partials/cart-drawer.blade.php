@@ -39,6 +39,7 @@
                 </svg>
                 <span>Pesanan Kamu</span>
             </h2>
+            <span class="cart-drawer__count-badge" id="cartDrawerItemCount" style="display: none;">0 Menu</span>
         </div>
         <button type="button" class="cart-drawer__close-btn" id="cartDrawerCloseBtn" aria-label="Tutup Keranjang">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

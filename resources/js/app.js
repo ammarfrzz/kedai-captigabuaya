@@ -427,6 +427,7 @@ const updateCartUI = () => {
     }
     if (cartDrawerItemCount) {
         cartDrawerItemCount.textContent = `${totalItems} Menu`;
+        cartDrawerItemCount.style.display = totalItems > 0 ? 'inline-flex' : 'none';
     }
     if (cartDrawerSubtotal) {
         cartDrawerSubtotal.textContent = formatRupiah(subtotal);
@@ -578,23 +579,43 @@ if (cartDrawerBackdrop) {
 }
 if (cartDrawerClearBtn) {
     cartDrawerClearBtn.addEventListener('click', () => {
-        if (window.showCustomConfirm) {
-            window.showCustomConfirm({
-                title: 'Kosongkan Keranjang?',
-                message: 'Apakah kamu yakin ingin mengosongkan seluruh menu dari keranjang pesanan?',
-                type: 'warning',
-                confirmText: 'Ya, Kosongkan',
-                cancelText: 'Batal',
-                onConfirm: () => {
-                    saveCart({});
-                    updateCartUI();
-                    showToast('Keranjang telah dikosongkan');
-                }
-            });
-        } else if (confirm('Apakah kamu yakin ingin mengosongkan seluruh pesanan di keranjang?')) {
+        const cart = getCart();
+        if (Object.keys(cart).length === 0) {
+            showToast('Keranjang memang sudah kosong');
+            return;
+        }
+
+        const executeClear = () => {
             saveCart({});
             updateCartUI();
             showToast('Keranjang telah dikosongkan');
+        };
+
+        if (typeof window.showCustomConfirm === 'function') {
+            window.showCustomConfirm({
+                title: 'Kosongkan Keranjang?',
+                message: 'Apakah kamu yakin ingin menghapus semua menu yang ada di keranjang pesanan?',
+                type: 'warning',
+                confirmText: 'Ya, Kosongkan',
+                cancelText: 'Batal',
+                onConfirm: executeClear
+            });
+        } else {
+            // Fallback retry jika script custom-modals selesai inisialisasi sedikit setelah app.js
+            setTimeout(() => {
+                if (typeof window.showCustomConfirm === 'function') {
+                    window.showCustomConfirm({
+                        title: 'Kosongkan Keranjang?',
+                        message: 'Apakah kamu yakin ingin menghapus semua menu yang ada di keranjang pesanan?',
+                        type: 'warning',
+                        confirmText: 'Ya, Kosongkan',
+                        cancelText: 'Batal',
+                        onConfirm: executeClear
+                    });
+                } else {
+                    executeClear();
+                }
+            }, 50);
         }
     });
 }

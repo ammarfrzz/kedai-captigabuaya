@@ -572,6 +572,12 @@
         });
     };
 
+    window.confirm = function(msg) {
+        // Fallback jika ada kode yang memanggil confirm() secara synchronous
+        // Tapi sarankan memanggil showCustomConfirm langsung
+        return false;
+    };
+
     // ══════════════════════════════════════════════════════════
     // 2. HOVER TOP BAR REMINDER (1 MENIT & HAPUS DB QRIS)
     // ══════════════════════════════════════════════════════════

@@ -135,6 +135,20 @@
     gap: 0.6rem;
 }
 
+.cart-drawer__count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(35, 78, 47, 0.1);
+    color: #234E2F;
+    border: 1px solid rgba(35, 78, 47, 0.2);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.65rem;
+    border-radius: 9999px;
+    letter-spacing: -0.01em;
+}
+
 .cart-drawer__title {
     font-size: 1.15rem;
     font-weight: 800;
