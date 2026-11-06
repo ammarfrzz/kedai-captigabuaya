@@ -100,7 +100,12 @@
                 </button>
 
                 @if(!empty($media['custom_url']))
-                <form action="{{ route('admin.banner.reset') }}" method="POST" onsubmit="return confirm('Kembalikan gambar ini ke foto default bawaan?');" style="margin:0;">
+                <form action="{{ route('admin.banner.reset') }}" method="POST"
+                      data-confirm="Kembalikan gambar ini ke foto default bawaan?"
+                      data-confirm-title="Reset Gambar Banner?"
+                      data-confirm-btn="Ya, Reset Foto"
+                      data-confirm-type="warning"
+                      style="margin:0;">
                     @csrf
                     <input type="hidden" name="media_id" value="{{ $media['id'] }}">
                     <button type="submit" class="btn btn-outline btn-sm" style="color:#dc2626; border-color:#fecaca;" title="Reset ke Default Bawaan">

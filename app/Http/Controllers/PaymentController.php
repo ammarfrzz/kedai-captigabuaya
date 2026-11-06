@@ -27,7 +27,7 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'customer_name'  => ['required', 'string', 'max:150'],
             'order_type'     => ['required', 'in:dine_in,take_away,dine-in,take-away,takeaway'],
-            'table_number'   => ['nullable', 'string', 'max:20'],
+            'table_number'   => ['nullable', 'regex:/^[0-9]+$/', 'max:10'],
             'notes'          => ['nullable', 'string'],
             'payment_method' => ['required', 'string'],
             'items'          => ['required', 'array', 'min:1'],
@@ -103,5 +103,47 @@ class PaymentController extends Controller
     public function confirmation()
     {
         return view('payment.confirmation');
+    }
+
+    /**
+     * Batalkan pesanan pelanggan dan hapus dari database (khusus pembayaran QRIS belum bayar).
+     */
+    public function cancelOrder(Request $request)
+    {
+        $orderNumber = $request->input('order_number');
+        $orderId = $request->input('order_id');
+
+        $query = Order::query();
+        if ($orderId) {
+            $query->where('id', $orderId);
+        } elseif ($orderNumber) {
+            $query->where('order_number', $orderNumber);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parameter order_number atau order_id tidak ditemukan.'
+            ], 400);
+        }
+
+        $order = $query->first();
+
+        if ($order) {
+            $isQris = str_contains(strtolower($order->payment_method ?? ''), 'qris');
+            // Hapus dari database jika metode QRIS dan belum dibayar (unpaid)
+            if ($isQris && $order->payment_status === 'unpaid') {
+                $order->delete();
+                return response()->json([
+                    'success' => true,
+                    'deleted' => true,
+                    'message' => 'Pesanan QRIS berhasil dibatalkan dan dihapus dari database.'
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'deleted' => false,
+            'message' => 'Pesanan tidak ditemukan atau bukan pesanan QRIS belum bayar.'
+        ]);
     }
 }

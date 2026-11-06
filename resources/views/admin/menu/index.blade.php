@@ -90,7 +90,12 @@
                         <a href="{{ route('admin.menu.edit', $m->id) }}" class="icon-btn" title="Edit">
                             <i class="fa-solid fa-pen"></i>
                         </a>
-                        <form action="{{ route('admin.menu.destroy', $m->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu {{ addslashes($m->nama) }}?');" style="display:inline;">
+                        <form action="{{ route('admin.menu.destroy', $m->id) }}" method="POST"
+                              data-confirm="Apakah Anda yakin ingin menghapus menu {{ addslashes($m->nama) }}? Data menu akan dihapus permanen dari daftar katalog."
+                              data-confirm-title="Hapus Menu?"
+                              data-confirm-btn="Ya, Hapus Menu"
+                              data-confirm-type="danger"
+                              style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="icon-btn" title="Hapus" style="color:#ef4444; border-color:#fecaca; background:none; cursor:pointer;">

@@ -75,12 +75,17 @@
                     </div>
 
                     <div class="payment-form-group" id="tableGroup">
-                        <label for="custTable" class="payment-label">Nomor Meja <span style="color: #BE1E2D;">*</span></label>
+                        <label for="custTable" class="payment-label">Nomor Meja <span style="color: #BE1E2D;">* (Wajib Angka)</span></label>
                         <input
-                            type="text"
+                            type="number"
                             id="custTable"
                             class="payment-input"
-                            placeholder="Contoh: 08 (atau lihat stiker meja)"
+                            placeholder="Contoh: 8 (hanya angka meja)"
+                            min="1"
+                            step="1"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                             required
                         >
                     </div>
@@ -340,7 +345,15 @@
                 if (!customerName) {
                     custNameInput.focus();
                     custNameInput.style.borderColor = '#BE1E2D';
-                    alert('Silakan masukkan nama pelanggan terlebih dahulu!');
+                    if (window.showCustomAlert) {
+                        window.showCustomAlert({
+                            title: 'Nama Pemesan Belum Diisi',
+                            message: 'Silakan masukkan nama Anda terlebih dahulu sebelum melanjutkan pesanan.',
+                            type: 'warning'
+                        });
+                    } else {
+                        alert('Silakan masukkan nama pelanggan terlebih dahulu!');
+                    }
                     setTimeout(() => {
                         custNameInput.style.borderColor = '';
                     }, 2000);
@@ -352,7 +365,33 @@
                     if (!tableNo) {
                         custTableInput.focus();
                         custTableInput.style.borderColor = '#BE1E2D';
-                        alert('Silakan masukkan nomor meja terlebih dahulu!');
+                        if (window.showCustomAlert) {
+                            window.showCustomAlert({
+                                title: 'Nomor Meja Belum Diisi',
+                                message: 'Silakan masukkan nomor meja Anda agar hidangan lezat dapat kami antarkan dengan tepat.',
+                                type: 'warning'
+                            });
+                        } else {
+                            alert('Silakan masukkan nomor meja terlebih dahulu!');
+                        }
+                        setTimeout(() => {
+                            custTableInput.style.borderColor = '';
+                        }, 2000);
+                        return;
+                    }
+
+                    if (!/^\d+$/.test(tableNo)) {
+                        custTableInput.focus();
+                        custTableInput.style.borderColor = '#BE1E2D';
+                        if (window.showCustomAlert) {
+                            window.showCustomAlert({
+                                title: 'Nomor Meja Wajib Angka',
+                                message: 'Nomor meja wajib berupa angka saja (contoh: 1, 8, 15).',
+                                type: 'warning'
+                            });
+                        } else {
+                            alert('Nomor meja harus berupa angka saja!');
+                        }
                         setTimeout(() => {
                             custTableInput.style.borderColor = '';
                         }, 2000);
@@ -376,12 +415,28 @@
                             });
                         }, 2000);
                     }
-                    alert('Silakan pilih salah satu Metode Pembayaran terlebih dahulu!');
+                    if (window.showCustomAlert) {
+                        window.showCustomAlert({
+                            title: 'Pilih Metode Pembayaran',
+                            message: 'Silakan pilih salah satu metode pembayaran (QRIS Dinamis atau Kasir Tunai).',
+                            type: 'warning'
+                        });
+                    } else {
+                        alert('Silakan pilih salah satu Metode Pembayaran terlebih dahulu!');
+                    }
                     return;
                 }
 
                 if (Object.keys(cart).length === 0) {
-                    alert('Keranjang belanja Anda kosong. Silakan pilih menu terlebih dahulu.');
+                    if (window.showCustomAlert) {
+                        window.showCustomAlert({
+                            title: 'Keranjang Masih Kosong',
+                            message: 'Keranjang pesanan Anda kosong. Silakan pilih menu nikmat kami terlebih dahulu.',
+                            type: 'warning'
+                        });
+                    } else {
+                        alert('Keranjang belanja Anda kosong. Silakan pilih menu terlebih dahulu.');
+                    }
                     return;
                 }
 
@@ -470,6 +525,21 @@
 
                     sessionStorage.setItem('ctb_current_order', JSON.stringify(orderData));
 
+                    // Perbarui pending payment dengan durasi 1 Menit (60 detik) KHUSUS QRIS jika keluar ke menu
+                    const isQRIS = selectedMethod && selectedMethod.toLowerCase().includes('qris');
+                    if (isQRIS) {
+                        localStorage.setItem('ctb_pending_payment', JSON.stringify({
+                            orderId: transactionId,
+                            dbId: data.order.order_id,
+                            paymentMethod: 'qris',
+                            total: totalAmount,
+                            expiresAt: Date.now() + (60 * 1000), // 1 menit saja
+                            url: "{{ route('pembayaran.confirmation') }}"
+                        }));
+                    } else {
+                        localStorage.removeItem('ctb_pending_payment');
+                    }
+
                     // Bersihkan keranjang belanja
                     localStorage.removeItem(CART_STORAGE_KEY);
 
@@ -478,7 +548,15 @@
                 })
                 .catch(err => {
                     console.error('Checkout error:', err);
-                    alert(err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi Anda.');
+                    if (window.showCustomAlert) {
+                        window.showCustomAlert({
+                            title: 'Pesanan Gagal Diproses',
+                            message: err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi internet Anda atau hubungi kasir.',
+                            type: 'error'
+                        });
+                    } else {
+                        alert(err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi Anda.');
+                    }
                     btnConfirmPayment.disabled = false;
                     btnConfirmPayment.innerHTML = `
                         <span>Bayar &amp; Konfirmasi</span>
@@ -491,5 +569,8 @@
             });
         });
     </script>
+
+    {{-- Custom Modals & Reminder Popup --}}
+    @include('partials.custom-modals')
 </body>
 </html>

@@ -528,7 +528,8 @@
             background: var(--surface);
             border-radius: var(--radius-md);
             border: 1px solid var(--border);
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
             box-shadow: var(--shadow-sm);
         }
         .data-table { width: 100%; border-collapse: collapse; }
@@ -1197,6 +1198,10 @@
             }
         }
     </script>
+
+    {{-- Admin Custom Modal (Popup Alert & Confirm) --}}
+    @include('admin.partials.custom-modals')
+
     @stack('scripts')
 </body>
 </html>
