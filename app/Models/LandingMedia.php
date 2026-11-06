@@ -174,9 +174,33 @@ class LandingMedia
         $stored = self::getStoredCustomizations();
 
         if ($uploadedFile && $uploadedFile->isValid()) {
-            $filename = 'landing_' . $id . '_' . time() . '.' . $uploadedFile->getClientOriginalExtension();
-            $path = $uploadedFile->storeAs('media', $filename, 'public');
-            $customUrl = asset('storage/' . $path);
+            // Hapus file lama jika sebelumnya merupakan file unggahan lokal di images/banners
+            if (!empty($stored[$id]['custom_url'])) {
+                self::deletePhysicalFileIfLocal($stored[$id]['custom_url']);
+            }
+
+            $extension = $uploadedFile->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'landing_' . $id . '_' . time() . '.' . $extension;
+
+            // Simpan langsung di public/images/banners agar tidak bergantung pada symlink storage
+            $targetDir = public_path('images/banners');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0777, true);
+            }
+            $targetPath = $targetDir . DIRECTORY_SEPARATOR . $filename;
+
+            $realPath = $uploadedFile->getRealPath();
+            $moved = false;
+            if ($realPath && file_exists($realPath)) {
+                $moved = @copy($realPath, $targetPath);
+            }
+            if (!$moved && method_exists($uploadedFile, 'getContent')) {
+                $moved = (file_put_contents($targetPath, $uploadedFile->getContent()) !== false);
+            }
+
+            if ($moved) {
+                $customUrl = asset('images/banners/' . $filename);
+            }
         }
 
         if ($customUrl !== null) {
@@ -198,6 +222,9 @@ class LandingMedia
     {
         $stored = self::getStoredCustomizations();
         if (isset($stored[$id])) {
+            if (!empty($stored[$id]['custom_url'])) {
+                self::deletePhysicalFileIfLocal($stored[$id]['custom_url']);
+            }
             unset($stored[$id]);
             self::saveStoredCustomizations($stored);
             return true;
@@ -212,10 +239,25 @@ class LandingMedia
     {
         if (!empty($item['custom_url'])) {
             $url = $item['custom_url'];
-            // Tambahkan timestamp anti-cache jika asset lokal
-            if (str_contains($url, asset('storage/'))) {
-                return $url . '?v=' . time();
+
+            // Jika file lokal di public/images/banners
+            if (str_contains($url, 'images/banners/')) {
+                $filename = basename(parse_url($url, PHP_URL_PATH));
+                $fullPath = public_path('images/banners/' . $filename);
+                $v = file_exists($fullPath) ? filemtime($fullPath) : time();
+                return asset('images/banners/' . $filename) . '?v=' . $v;
             }
+
+            // Fallback backward-compatible jika sebelumnya tersimpan sebagai storage/media/
+            if (str_contains($url, 'storage/media/')) {
+                $filename = basename(parse_url($url, PHP_URL_PATH));
+                $directPath = public_path('images/banners/' . $filename);
+                if (file_exists($directPath)) {
+                    return asset('images/banners/' . $filename) . '?v=' . filemtime($directPath);
+                }
+                return $url . (str_contains($url, '?') ? '&' : '?') . 'v=' . time();
+            }
+
             return $url;
         }
 
@@ -226,6 +268,26 @@ class LandingMedia
         }
 
         return asset('images/hero-bg.jpg');
+    }
+
+    /**
+     * Hapus berkas fisik lokal jika gambar disimpan di images/banners
+     */
+    protected static function deletePhysicalFileIfLocal(string $url): void
+    {
+        if (str_contains($url, 'images/banners/')) {
+            $filename = basename(parse_url($url, PHP_URL_PATH));
+            $filePath = public_path('images/banners/' . $filename);
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+        } elseif (str_contains($url, 'storage/media/')) {
+            $filename = basename(parse_url($url, PHP_URL_PATH));
+            $filePath = public_path('images/banners/' . $filename);
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+        }
     }
 
     protected static function getStoredCustomizations(): array

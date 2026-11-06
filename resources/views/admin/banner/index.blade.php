@@ -18,6 +18,20 @@
 </div>
 @endif
 
+@if(isset($errors) && $errors->any())
+<div style="background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; border-radius:var(--radius-md); padding:14px 18px; margin-bottom:20px; display:flex; align-items:flex-start; gap:12px; font-weight:600; box-shadow:var(--shadow-sm);">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size:18px; margin-top:2px;"></i>
+    <div style="flex:1;">
+        <div style="margin-bottom:4px; font-weight:700;">Gagal memperbarui gambar:</div>
+        <ul style="margin:0; padding-left:18px; font-size:13px; font-weight:500;">
+            @foreach($errors->all() as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+</div>
+@endif
+
 <div class="page-header">
     <div class="page-header-left">
         <h1>Kelola Gambar</h1>
@@ -166,7 +180,7 @@
                 <div style="border:2px dashed var(--border); border-radius:var(--radius-md); padding:16px; text-align:center; background:var(--bg); cursor:pointer;" onclick="document.getElementById('inputImageFile').click()">
                     <i class="fa-solid fa-cloud-arrow-up" style="font-size:28px; color:var(--green-600); margin-bottom:8px;"></i>
                     <div style="font-size:13px; font-weight:600; color:var(--text-1);" id="fileNameDisplay">Klik untuk memilih foto baru dari perangkat</div>
-                    <div style="font-size:11px; color:var(--text-3); margin-top:4px;">Format didukung: JPG, PNG, WEBP, SVG (Maks. 5 MB)</div>
+                    <div style="font-size:11px; color:var(--text-3); margin-top:4px;">Format didukung: JPG, PNG, WEBP, SVG (Maks. 20 MB)</div>
                 </div>
                 <input type="file" name="image_file" id="inputImageFile" accept="image/*" style="display:none;" onchange="handleFileSelected(this)">
             </div>
@@ -259,6 +273,13 @@
     function handleFileSelected(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
+            const maxMb = 20;
+            if (file.size > maxMb * 1024 * 1024) {
+                alert('Ukuran file terlalu besar (' + (file.size / 1024 / 1024).toFixed(1) + ' MB). Maksimal ukuran file adalah ' + maxMb + ' MB.');
+                input.value = '';
+                document.getElementById('fileNameDisplay').textContent = 'Klik untuk memilih foto baru dari perangkat';
+                return;
+            }
             document.getElementById('fileNameDisplay').textContent = 'File dipilih: ' + file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
             
             // Preview file lokal

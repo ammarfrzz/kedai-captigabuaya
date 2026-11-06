@@ -119,7 +119,7 @@
 
             <!-- INFORMASI PENGUNGGAHAN FOTO DI BAWAH BUTTON GANTI FOTO -->
             <div style="font-size:11.5px; color:var(--text-3); line-height:1.6; margin-top:16px; max-width:310px;">
-                <i class="fa-solid fa-circle-info" style="color:var(--green-600);"></i> Format: JPG, PNG, atau WEBP. Rekomendasi rasio 4:3 atau 1:1 dengan ukuran maksimal 2 MB.
+                <i class="fa-solid fa-circle-info" style="color:var(--green-600);"></i> Format: JPG, PNG, atau WEBP. Rekomendasi rasio 4:3 atau 1:1 dengan ukuran maksimal 10 MB.
             </div>
         </div>
     </div>
