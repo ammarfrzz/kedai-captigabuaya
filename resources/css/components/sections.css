@@ -719,7 +719,6 @@
     transform: scale(1.08);
 }
 
-<<<<<<< Updated upstream
 .menu-card__badge {
     position: absolute;
     top: 0.875rem;
@@ -807,8 +806,6 @@
     transform: scale(1.1);
 }
 
-=======
->>>>>>> Stashed changes
 .menu-card__body {
     padding: 1.25rem;
     display: flex;
@@ -1110,7 +1107,7 @@
     background: #FFFDF9;
     border-radius: 20px;
     padding: 2.75rem 2.5rem 2.25rem;
-    box-shadow: 
+    box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.07),
         0 14px 30px -4px rgba(45, 106, 79, 0.14),
         0 1px 2px rgba(0, 0, 0, 0.04);
@@ -1124,7 +1121,7 @@
 
 .testi-card-wrapper:hover .testi-card-box {
     transform: translateY(-4px) rotate(-0.5deg);
-    box-shadow: 
+    box-shadow:
         0 6px 12px -2px rgba(0, 0, 0, 0.08),
         0 20px 38px -4px rgba(45, 106, 79, 0.18),
         0 1px 3px rgba(0, 0, 0, 0.05);
