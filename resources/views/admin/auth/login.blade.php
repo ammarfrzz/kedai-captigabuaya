@@ -181,8 +181,63 @@
         }
 
         .form-input::placeholder {
+            color: transparent;
+        }
+
+        /* ── FLOATING LABEL ── */
+        .floating-group { position: relative; margin-bottom: 20px; }
+
+        .floating-label {
+            position: absolute;
+            left: 42px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            font-weight: 500;
             color: #94a3b8;
-            font-weight: 400;
+            pointer-events: none;
+            transition: all 0.22s cubic-bezier(.4,0,.2,1);
+            background: transparent;
+            padding: 0 4px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        /* Saat ada isi atau fokus: label naik ke atas */
+        .floating-input:focus ~ .floating-label,
+        .floating-input:not(:placeholder-shown) ~ .floating-label {
+            top: 0;
+            transform: translateY(-50%);
+            font-size: 11px;
+            font-weight: 700;
+            color: #1f5133;
+            background: #ffffff;
+            padding: 0 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .floating-input:not(:focus):not(:placeholder-shown) ~ .floating-label {
+            color: #475569;
+        }
+
+        /* Saat fokus: border hijau */
+        .floating-input:focus {
+            background-color: #ffffff;
+            border-color: #1f5133;
+            box-shadow: 0 0 0 3px rgba(31, 81, 51, 0.12);
+        }
+
+        .floating-input:focus ~ .floating-label,
+        .floating-group:focus-within .input-icon {
+            color: #1f5133;
+        }
+
+        /* Override icon agar posisi tetap */
+        .floating-group .input-icon {
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
         }
 
         .form-input:focus {
@@ -373,36 +428,36 @@
                 <form action="{{ route('admin.login.submit') }}" method="POST">
                     @csrf
 
-                    <div class="form-group">
-                        <label for="username" class="form-label">USERNAME ATAU EMAIL</label>
+                    <div class="form-group floating-group">
                         <div class="input-wrapper">
+                            <i class="fa-regular fa-user input-icon"></i>
                             <input 
                                 type="text" 
                                 id="username" 
                                 name="username" 
-                                class="form-input" 
-                                placeholder="admin@kedaibuaya.id" 
+                                class="form-input floating-input" 
+                                placeholder=" "
                                 required 
                                 autocomplete="username"
                             >
-                            <i class="fa-regular fa-user input-icon"></i>
+                            <label for="username" class="floating-label">Masukkan Username</label>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="password" class="form-label">KATA SANDI</label>
+                    <div class="form-group floating-group">
                         <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
                             <input 
                                 type="password" 
                                 id="password" 
                                 name="password" 
-                                class="form-input" 
-                                placeholder="••••••••" 
+                                class="form-input floating-input" 
+                                placeholder=" "
                                 required 
                                 autocomplete="current-password"
                                 style="padding-right: 42px;"
                             >
-                            <i class="fa-solid fa-lock input-icon"></i>
+                            <label for="password" class="floating-label">Masukkan Password</label>
                             <button type="button" class="toggle-password" id="togglePasswordBtn" aria-label="Tampilkan atau sembunyikan kata sandi">
                                 <i class="fa-regular fa-eye" id="passwordIcon"></i>
                             </button>

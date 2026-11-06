@@ -16,12 +16,12 @@ class KedaiSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Akun Admin Default
-        User::firstOrCreate(
-            ['email' => 'admin@kedai.com'],
+        // 1. Akun Admin Default (credentials susah ditebak)
+        User::updateOrCreate(
+            ['email' => 'ctb.admin2024@gmail.com'],
             [
-                'name' => 'Admin Kedai',
-                'password' => Hash::make('password123'),
+                'name' => 'Kp3Mngr_CTB',
+                'password' => Hash::make('C@p3Buay@#Kdai!2024'),
                 'email_verified_at' => now(),
             ]
         );

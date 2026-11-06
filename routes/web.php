@@ -26,6 +26,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/chart-data', [AdminDashboardController::class, 'chartData'])->name('dashboard.chart');
 
     // Kelola Menu
     Route::get('/menu', [AdminMenuController::class, 'index'])->name('menu.index');
