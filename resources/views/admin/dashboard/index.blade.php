@@ -136,9 +136,9 @@
             </div>
         </div>
 
-        {{-- CANVAS CHART --}}
-        <div style="position:relative; width:100%; overflow-x:auto; padding-top:10px;">
-            <canvas id="salesChart" style="width:100%; max-height:260px;"></canvas>
+        {{-- CANVAS CHART CONTAINER --}}
+        <div style="position:relative; width:100%; height:260px; padding-top:10px;">
+            <canvas id="salesChart"></canvas>
         </div>
 
         <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px; margin-top:20px; padding-top:14px; border-top:1px solid #f1f5f3; font-size:12.5px; color:var(--text-3);">
@@ -238,7 +238,7 @@
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: { display: false },

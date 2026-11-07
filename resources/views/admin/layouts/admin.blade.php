@@ -1150,19 +1150,13 @@
         </ul>
 
         <div class="sidebar-footer">
-            <div class="sidebar-user">
-                @if(Auth::user()?->avatar)
-                <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}" style="width:38px; height:38px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.3); flex-shrink:0;">
-                @else
-                <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:16px; border:2px solid rgba(255,255,255,0.2); flex-shrink:0;">
-                    <i class="fa-solid fa-user-tie" style="color:#ffffff;"></i>
-                </div>
-                @endif
+            <a href="{{ route('admin.akun') }}" class="sidebar-user" style="text-decoration:none; color:inherit;">
+                <img src="{{ Auth::user()?->avatar_url ?? asset('images/avatar-budi.jpg') }}" alt="{{ Auth::user()?->name ?? 'Admin' }}" style="width:38px; height:38px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.3); flex-shrink:0;">
                 <div class="sidebar-user-info">
                     <span class="u-name">{{ Auth::user()?->name ?? 'Admin' }}</span>
                     <span class="u-role">Administrator</span>
                 </div>
-            </div>
+            </a>
             <form action="{{ route('admin.logout') }}" method="POST" style="margin: 0;">
                 @csrf
                 <button type="submit" class="btn-logout">

@@ -50,9 +50,7 @@
                 <span style="display:inline-flex; align-items:center; gap:5px; font-size:12px; background:rgba(45,122,64,0.1); color:var(--green-800); font-weight:700; padding:3px 10px; border-radius:20px;">
                     <i class="fa-solid fa-shield-halved"></i> Administrator
                 </span>
-                <span style="font-size:12.5px; color:var(--text-3); display:inline-flex; align-items:center; gap:5px;">
-                    <i class="fa-regular fa-envelope"></i> {{ $user->email }}
-                </span>
+
             </div>
         </div>
     </div>
@@ -65,9 +63,7 @@
         <button type="button" class="account-nav-item" id="btn-tab-keamanan" onclick="switchTab(this, 'tab-keamanan')">
             <i class="fa-solid fa-lock"></i> Keamanan &amp; Sandi
         </button>
-        <button type="button" class="account-nav-item" id="btn-tab-log" onclick="switchTab(this, 'tab-log')">
-            <i class="fa-solid fa-clock-rotate-left"></i> Log Aktivitas
-        </button>
+
     </div>
 </div>
 
@@ -117,10 +113,10 @@
                             </div>
                         </div>
                         <div class="account-form-group">
-                            <label class="account-label">TERDAFTAR SEJAK</label>
+                            <label class="account-label">TERAKHIR DIUBAH</label>
                             <div class="input-with-icon">
                                 <i class="fa-regular fa-calendar-check input-icon"></i>
-                                <input type="text" class="account-input readonly" value="{{ $user->created_at ? $user->created_at->translatedFormat('d F Y, H:i') . ' WIB' : 'Akun Sistem' }}" readonly>
+                                <input type="text" class="account-input readonly" value="{{ $user->updated_at ? $user->updated_at->translatedFormat('d F Y, H:i') . ' WIB' : ($user->created_at ? $user->created_at->translatedFormat('d F Y, H:i') . ' WIB' : 'Akun Sistem') }}" readonly>
                             </div>
                         </div>
                     </div>
@@ -189,47 +185,6 @@
         </div>
     </div>
 
-    <!-- TAB 3: LOG AKTIVITAS -->
-    <div id="tab-log" class="account-tab-panel" style="display:none;">
-        <div class="account-box-card">
-            <div class="account-box-header">
-                <div class="box-header-icon">
-                    <i class="fa-solid fa-list-check"></i>
-                </div>
-                <div>
-                    <h3>Riwayat Aktivitas Akun</h3>
-                    <p>Catatan kronologis tindakan autentikasi dan operasional oleh akun ini.</p>
-                </div>
-            </div>
-            <div class="account-box-body" style="padding-top:12px;">
-                @php
-                $logs = [
-                    ['icon'=>'fa-right-to-bracket','color'=>'#16a34a','bg'=>'#dcfce7','action'=>'Login Berhasil ke Sistem Admin','detail'=>'Sesi aktif saat ini · Browser Web','time'=>'Hari ini'],
-                    ['icon'=>'fa-pen-to-square','color'=>'#2563eb','bg'=>'#dbeafe','action'=>'Pembaruan Terakhir Profil Akun','detail'=>'Sinkronisasi data kredensial admin kedai','time'=> $user->updated_at ? $user->updated_at->translatedFormat('d M Y, H:i') . ' WIB' : 'Baru saja'],
-                    ['icon'=>'fa-images','color'=>'#0891b2','bg'=>'#cffafe','action'=>'Akses Manajemen Banner & Media','detail'=>'Kelola banner landing page Kedai Cap Tiga Buaya','time'=>'Hari ini'],
-                    ['icon'=>'fa-utensils','color'=>'#ea580c','bg'=>'#ffedd5','action'=>'Akses Manajemen Menu & Pesanan','detail'=>'Pemantauan transaksi Dine In & Take Away','time'=>'Hari ini'],
-                ];
-                @endphp
-
-                <div class="activity-timeline">
-                    @foreach($logs as $l)
-                    <div class="timeline-row">
-                        <div class="timeline-icon" style="background:{{ $l['bg'] }}; color:{{ $l['color'] }};">
-                            <i class="fa-solid {{ $l['icon'] }}"></i>
-                        </div>
-                        <div class="timeline-main">
-                            <div class="timeline-title">{{ $l['action'] }}</div>
-                            <div class="timeline-sub">{{ $l['detail'] }}</div>
-                        </div>
-                        <div class="timeline-time">
-                            <i class="fa-regular fa-clock"></i> {{ $l['time'] }}
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
 
 </div>
 
@@ -475,54 +430,6 @@
     line-height: 1.4;
 }
 
-/* ── TIMELINE ── */
-.activity-timeline {
-    display: flex;
-    flex-direction: column;
-}
-.timeline-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
-}
-.timeline-row:last-child {
-    border-bottom: none;
-}
-.timeline-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
-}
-.timeline-main {
-    flex: 1;
-    min-width: 0;
-}
-.timeline-title {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--text-1);
-    margin-bottom: 2px;
-}
-.timeline-sub {
-    font-size: 12px;
-    color: var(--text-3);
-}
-.timeline-time {
-    font-size: 12px;
-    color: var(--text-3);
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
 @media (max-width: 768px) {
     .account-hero-content {
         flex-direction: column;
@@ -549,7 +456,7 @@
 function switchTab(btn, tabId) {
     document.querySelectorAll('.account-nav-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    ['tab-profil','tab-keamanan','tab-log'].forEach(id => {
+    ['tab-profil','tab-keamanan'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.style.display = (id === tabId) ? 'block' : 'none';
