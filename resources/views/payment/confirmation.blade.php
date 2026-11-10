@@ -147,15 +147,6 @@
                 </div>
 
                 <div class="confirm-actions" style="margin-top: 2rem;">
-                    <button type="button" class="confirm-btn-print" onclick="window.print()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                            <rect x="6" y="14" width="12" height="8"></rect>
-                        </svg>
-                        <span>Cetak / Simpan Struk</span>
-                    </button>
-
                     <a href="{{ url('/') }}" class="confirm-btn-home" id="btnConfirmHome" style="display: none;">
                         <span>Pesan Menu Lain / Selesai</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -169,9 +160,6 @@
                 </div>
 
             </div>
-
-        </div>
-    </main>
 
         </div>
     </main>
