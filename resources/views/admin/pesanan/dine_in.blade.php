@@ -27,31 +27,18 @@
 
 <!-- TOOLBAR -->
 <div class="toolbar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
-    <form action="{{ route('admin.pesanan.dine_in') }}" method="GET" style="display:flex; width:100%; max-width:340px;">
-        <div class="toolbar-search" style="width:100%;">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No. Meja, Pesanan, Pelanggan..." id="order-search">
-        </div>
-    </form>
+    <div class="toolbar-search" style="width:100%; max-width:340px;">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Cari No. Meja, Pesanan, Pelanggan..." id="order-search">
+    </div>
 
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-left:auto;">
         {{-- Filter Pembayaran --}}
-        <form id="filter-form" action="{{ route('admin.pesanan.dine_in') }}" method="GET" style="display:flex; gap:10px;">
-            @if(request('search'))
-                <input type="hidden" name="search" value="{{ request('search') }}">
-            @endif
-            <select name="payment" class="toolbar-select" onchange="document.getElementById('filter-form').submit()" style="font-size:12.5px;">
-                <option value="">Semua Pembayaran</option>
-                <option value="paid" {{ request('payment') === 'paid' ? 'selected' : '' }}>🟢 Lunas</option>
-                <option value="unpaid" {{ request('payment') === 'unpaid' ? 'selected' : '' }}>🔴 Belum Lunas</option>
-            </select>
-
-            @if(request('payment') || request('search'))
-                <a href="{{ route('admin.pesanan.dine_in') }}" class="btn btn-outline btn-sm" style="font-size:12px;" title="Reset Filter">
-                    <i class="fa-solid fa-rotate-left"></i> Reset
-                </a>
-            @endif
-        </form>
+        <select class="toolbar-select" id="filter-payment" style="font-size:12.5px;">
+            <option value="">Semua Pembayaran</option>
+            <option value="paid">🟢 Lunas</option>
+            <option value="unpaid">🔴 Belum Lunas</option>
+        </select>
     </div>
 </div>
 
@@ -68,9 +55,13 @@
                 <th style="min-width:180px; text-align:right; padding-right:24px;">Aksi</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="order-table-body">
             @forelse($orders as $p)
-            <tr>
+            @php
+                $itemsSummary = $p->items->map(fn($item) => "{$item->quantity}x {$item->menu_name}")->join(', ');
+                $searchContent = strtolower("{$p->order_number} {$p->customer_name} {$p->table_number} {$p->customer_phone} {$itemsSummary}");
+            @endphp
+            <tr class="order-row" data-search="{{ $searchContent }}" data-payment="{{ $p->payment_status }}">
                 <td>
                     <div style="font-weight:700; font-size:13px; color:#1a4d2b;">{{ $p->order_number }}</div>
                     <div style="font-size:11px; color:var(--text-3); margin-top:2px;">
@@ -86,9 +77,6 @@
                     </div>
                 </td>
                 <td style="color:var(--text-2); font-size:12.5px; max-width:240px;">
-                    @php
-                        $itemsSummary = $p->items->map(fn($item) => "{$item->quantity}x {$item->menu_name}")->join(', ');
-                    @endphp
                     <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500;" title="{{ $itemsSummary }}">
                         {{ $itemsSummary ?: 'Tidak ada item' }}
                     </div>
@@ -140,7 +128,7 @@
                 </td>
             </tr>
             @empty
-            <tr>
+            <tr id="empty-state-row">
                 <td colspan="6" style="text-align:center; padding:40px 20px; color:var(--text-3);">
                     <i class="fa-solid fa-clipboard-list" style="font-size:30px; margin-bottom:10px; display:block; opacity:0.35;"></i>
                     <div style="font-weight:600; font-size:14px; color:var(--text-2);">Belum ada pesanan Dine In</div>
@@ -148,15 +136,154 @@
                 </td>
             </tr>
             @endforelse
+            <tr id="no-filter-match-row" style="display:none;">
+                <td colspan="6" style="text-align:center; padding:40px 20px; color:var(--text-3);">
+                    <i class="fa-solid fa-magnifying-glass" style="font-size:26px; margin-bottom:10px; display:block; opacity:0.35;"></i>
+                    <div style="font-weight:600; font-size:14px; color:var(--text-2);">Tidak ada pesanan yang sesuai filter</div>
+                    <div style="font-size:12.5px; margin-top:2px;">Coba gunakan kata kunci pencarian atau filter pembayaran lainnya.</div>
+                </td>
+            </tr>
         </tbody>
     </table>
 
+    <!-- PAGINATION ROW -->
     <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-top:1px solid var(--border);">
-        <span style="font-size:13px; color:var(--text-3);">Menampilkan {{ $orders->count() }} dari total {{ $orders->total() }} pesanan</span>
-        <div>
-            {{ $orders->links() }}
+        <span id="pagination-info" style="font-size:13px; color:var(--text-3);">Menampilkan 0 pesanan</span>
+        <div class="pagination" id="pagination-controls">
+            <!-- Tombol halaman otomatis digenerate via JavaScript -->
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rows = Array.from(document.querySelectorAll('#order-table-body .order-row'));
+    const searchInput = document.getElementById('order-search');
+    const paymentSelect = document.getElementById('filter-payment');
+    const paginationControls = document.getElementById('pagination-controls');
+    const paginationInfo = document.getElementById('pagination-info');
+    const noMatchRow = document.getElementById('no-filter-match-row');
+
+    const itemsPerPage = 11;
+    let currentPage = 1;
+
+    function getFilteredRows() {
+        const query = (searchInput.value || '').trim().toLowerCase();
+        const selectedPayment = (paymentSelect.value || '').toLowerCase();
+
+        return rows.filter(row => {
+            const rowSearch = (row.getAttribute('data-search') || '').toLowerCase();
+            const rowPayment = (row.getAttribute('data-payment') || '').toLowerCase();
+
+            const matchPayment = !selectedPayment || rowPayment === selectedPayment;
+            const matchSearch = !query || rowSearch.includes(query);
+
+            return matchPayment && matchSearch;
+        });
+    }
+
+    function renderTable() {
+        const filtered = getFilteredRows();
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        // Sembunyikan semua row pesanan
+        rows.forEach(row => row.style.display = 'none');
+
+        // Tampilkan row sesuai halaman aktif
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+        for (let i = startIndex; i < endIndex; i++) {
+            filtered[i].style.display = '';
+        }
+
+        // Kelola pesan kosong
+        if (noMatchRow) {
+            noMatchRow.style.display = (rows.length > 0 && totalItems === 0) ? '' : 'none';
+        }
+
+        // Update info text
+        if (totalItems === 0) {
+            paginationInfo.textContent = rows.length === 0 ? 'Belum ada pesanan' : 'Tidak ada pesanan yang ditemukan';
+        } else {
+            paginationInfo.textContent = `Menampilkan ${startIndex + 1} - ${endIndex} dari ${totalItems} pesanan`;
+        }
+
+        // Render tombol pagination
+        paginationControls.innerHTML = '';
+        if (totalPages <= 1) {
+            return;
+        }
+
+        // Tombol Sebelumnya
+        const prevBtn = document.createElement('a');
+        prevBtn.href = 'javascript:void(0)';
+        prevBtn.className = `page-btn ${currentPage === 1 ? 'disabled' : ''}`;
+        prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+        paginationControls.appendChild(prevBtn);
+
+        // Tombol Angka Halaman
+        for (let p = 1; p <= totalPages; p++) {
+            const pageBtn = document.createElement('a');
+            pageBtn.href = 'javascript:void(0)';
+            pageBtn.className = `page-btn ${p === currentPage ? 'active' : ''}`;
+            pageBtn.textContent = p;
+            pageBtn.addEventListener('click', ((page) => (e) => {
+                e.preventDefault();
+                currentPage = page;
+                renderTable();
+            })(p));
+            paginationControls.appendChild(pageBtn);
+        }
+
+        // Tombol Selanjutnya
+        const nextBtn = document.createElement('a');
+        nextBtn.href = 'javascript:void(0)';
+        nextBtn.className = `page-btn ${currentPage === totalPages ? 'disabled' : ''}`;
+        nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        });
+        paginationControls.appendChild(nextBtn);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            currentPage = 1;
+            renderTable();
+        });
+    }
+
+    if (paymentSelect) {
+        paymentSelect.addEventListener('change', () => {
+            currentPage = 1;
+            renderTable();
+        });
+    }
+
+    renderTable();
+});
+</script>
+@endpush
 
 @endsection

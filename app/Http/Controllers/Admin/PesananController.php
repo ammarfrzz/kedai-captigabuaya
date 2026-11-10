@@ -15,51 +15,20 @@ class PesananController extends Controller
 
     public function dineIn(Request $request)
     {
-        $query = Order::with('items')->where('order_type', 'dine_in')->latest();
-
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('table_number', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status = $request->input('status')) {
-            $query->where('order_status', $status);
-        }
-
-        if ($payment = $request->input('payment')) {
-            $query->where('payment_status', $payment);
-        }
-
-        $orders = $query->paginate(15)->withQueryString();
+        $orders = Order::with('items')
+            ->where('order_type', 'dine_in')
+            ->latest()
+            ->get();
 
         return view('admin.pesanan.dine_in', compact('orders'));
     }
 
     public function takeAway(Request $request)
     {
-        $query = Order::with('items')->where('order_type', 'take_away')->latest();
-
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status = $request->input('status')) {
-            $query->where('order_status', $status);
-        }
-
-        if ($payment = $request->input('payment')) {
-            $query->where('payment_status', $payment);
-        }
-
-        $orders = $query->paginate(15)->withQueryString();
+        $orders = Order::with('items')
+            ->where('order_type', 'take_away')
+            ->latest()
+            ->get();
 
         return view('admin.pesanan.take_away', compact('orders'));
     }
