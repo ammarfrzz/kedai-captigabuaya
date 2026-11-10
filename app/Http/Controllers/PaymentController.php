@@ -149,6 +149,38 @@ class PaymentController extends Controller
             return response()->json(['error' => 'Order not found'], 404);
         }
 
+        // Helper untuk memformat nama metode pembayaran Midtrans
+        $formatPaymentMethod = function ($statusData) {
+            $paymentType = $statusData->payment_type ?? null;
+            if (!$paymentType) return null;
+
+            if ($paymentType === 'qris') {
+                $issuer = !empty($statusData->issuer) ? strtoupper($statusData->issuer) : '';
+                return $issuer ? "QRIS ($issuer)" : 'QRIS';
+            } elseif ($paymentType === 'bank_transfer') {
+                if (!empty($statusData->va_numbers[0]->bank)) {
+                    return 'Virtual Account ' . strtoupper($statusData->va_numbers[0]->bank);
+                } elseif (!empty($statusData->permata_va_number)) {
+                    return 'Virtual Account Permata';
+                }
+                return 'Virtual Account';
+            } elseif ($paymentType === 'echannel') {
+                return 'Mandiri Bill Payment';
+            } elseif ($paymentType === 'gopay') {
+                return 'GoPay';
+            } elseif ($paymentType === 'shopeepay') {
+                return 'ShopeePay';
+            } elseif ($paymentType === 'credit_card') {
+                $bank = !empty($statusData->bank) ? ' ' . strtoupper($statusData->bank) : '';
+                return 'Kartu Kredit' . $bank;
+            } elseif ($paymentType === 'cstore') {
+                $store = !empty($statusData->store) ? strtoupper($statusData->store) : 'Convenience Store';
+                return $store;
+            }
+
+            return ucwords(str_replace('_', ' ', $paymentType));
+        };
+
         // Jika saat ini masih unpaid dan memiliki snap_token, tembak langsung API Midtrans
         if ($order->payment_status === 'unpaid') {
             try {
@@ -158,16 +190,23 @@ class PaymentController extends Controller
                 if ($statusResponse) {
                     $transactionStatus = $statusResponse->transaction_status ?? null;
                     $fraudStatus       = $statusResponse->fraud_status ?? null;
+                    $detectedMethod    = $formatPaymentMethod($statusResponse);
 
                     if ($transactionStatus === 'settlement' || ($transactionStatus === 'capture' && $fraudStatus === 'accept')) {
-                        $order->update([
+                        $updateData = [
                             'payment_status' => 'paid',
                             'order_status'   => 'processing',
-                        ]);
+                        ];
+                        if ($detectedMethod) {
+                            $updateData['payment_method'] = $detectedMethod;
+                        }
+                        $order->update($updateData);
                     } elseif (in_array($transactionStatus, ['expire', 'cancel', 'deny'])) {
                         $order->update([
                             'order_status' => 'cancelled',
                         ]);
+                    } elseif ($detectedMethod && $order->payment_method !== $detectedMethod) {
+                        $order->update(['payment_method' => $detectedMethod]);
                     }
                 }
             } catch (\Throwable $e) {
@@ -179,6 +218,7 @@ class PaymentController extends Controller
             'order_number'   => $order->order_number,
             'payment_status' => $order->payment_status,
             'order_status'   => $order->order_status,
+            'payment_method' => $order->payment_method,
             'snap_token'     => $order->snap_token,
         ]);
     }
@@ -215,25 +255,58 @@ class PaymentController extends Controller
                 return response()->json(['status' => 'success', 'message' => 'Order not found, verification passed']);
             }
 
+            $rawPayload = $data['raw'] ?? [];
+            $detectedMethod = null;
+            if ($paymentType === 'qris') {
+                $issuer = !empty($rawPayload['issuer']) ? strtoupper($rawPayload['issuer']) : '';
+                $detectedMethod = $issuer ? "QRIS ($issuer)" : 'QRIS';
+            } elseif ($paymentType === 'bank_transfer') {
+                if (!empty($rawPayload['va_numbers'][0]['bank'])) {
+                    $detectedMethod = 'Virtual Account ' . strtoupper($rawPayload['va_numbers'][0]['bank']);
+                } elseif (!empty($rawPayload['permata_va_number'])) {
+                    $detectedMethod = 'Virtual Account Permata';
+                } else {
+                    $detectedMethod = 'Virtual Account';
+                }
+            } elseif ($paymentType === 'echannel') {
+                $detectedMethod = 'Mandiri Bill Payment';
+            } elseif ($paymentType === 'gopay') {
+                $detectedMethod = 'GoPay';
+            } elseif ($paymentType === 'shopeepay') {
+                $detectedMethod = 'ShopeePay';
+            } elseif ($paymentType === 'credit_card') {
+                $bank = !empty($rawPayload['bank']) ? ' ' . strtoupper($rawPayload['bank']) : '';
+                $detectedMethod = 'Kartu Kredit' . $bank;
+            } elseif ($paymentType === 'cstore') {
+                $store = !empty($rawPayload['store']) ? strtoupper($rawPayload['store']) : 'Convenience Store';
+                $detectedMethod = $store;
+            } elseif ($paymentType) {
+                $detectedMethod = ucwords(str_replace('_', ' ', $paymentType));
+            }
+
             if ($transactionStatus == 'capture') {
                 if ($fraudStatus == 'challenge') {
                     $order->update(['payment_status' => 'unpaid']);
                 } else if ($fraudStatus == 'accept') {
-                    $order->update([
+                    $updateData = [
                         'payment_status' => 'paid',
                         'order_status'   => 'processing',
-                    ]);
+                    ];
+                    if ($detectedMethod) $updateData['payment_method'] = $detectedMethod;
+                    $order->update($updateData);
                 }
             } else if ($transactionStatus == 'settlement') {
                 // Pembayaran sukses (QRIS, GoPay, VA, dsb.)
-                $order->update([
+                $updateData = [
                     'payment_status' => 'paid',
                     'order_status'   => 'processing',
-                ]);
+                ];
+                if ($detectedMethod) $updateData['payment_method'] = $detectedMethod;
+                $order->update($updateData);
             } else if ($transactionStatus == 'pending') {
-                $order->update([
-                    'payment_status' => 'unpaid',
-                ]);
+                $updateData = ['payment_status' => 'unpaid'];
+                if ($detectedMethod) $updateData['payment_method'] = $detectedMethod;
+                $order->update($updateData);
             } else if (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
                 $order->update([
                     'payment_status' => 'unpaid',

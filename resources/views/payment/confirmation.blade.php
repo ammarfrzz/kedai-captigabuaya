@@ -301,15 +301,57 @@
                         return;
                     }
 
+                    function formatPaymentMethodName(result) {
+                        if (!result) return null;
+                        const pType = result.payment_type || '';
+                        if (pType === 'qris') {
+                            const issuer = result.issuer ? result.issuer.toUpperCase() : '';
+                            return issuer ? `QRIS (${issuer})` : 'QRIS';
+                        } else if (pType === 'bank_transfer') {
+                            if (result.va_numbers && result.va_numbers.length > 0 && result.va_numbers[0].bank) {
+                                return 'Virtual Account ' + result.va_numbers[0].bank.toUpperCase();
+                            } else if (result.permata_va_number) {
+                                return 'Virtual Account Permata';
+                            }
+                            return 'Virtual Account';
+                        } else if (pType === 'echannel') {
+                            return 'Mandiri Bill Payment';
+                        } else if (pType === 'gopay') {
+                            return 'GoPay';
+                        } else if (pType === 'shopeepay') {
+                            return 'ShopeePay';
+                        } else if (pType === 'credit_card') {
+                            const bank = result.bank ? ' ' + result.bank.toUpperCase() : '';
+                            return 'Kartu Kredit' + bank;
+                        } else if (pType === 'cstore') {
+                            return (result.store || 'Convenience Store').toUpperCase();
+                        } else if (pType) {
+                            return pType.replace(/_/g, ' ').toUpperCase();
+                        }
+                        return null;
+                    }
+
                     if (typeof window.snap !== 'undefined' && window.snap.pay) {
                         window.snap.pay(snapToken, {
                             onSuccess: function(result) {
                                 console.log('Midtrans Payment Success:', result);
                                 isOrderPaid = true;
+                                const specificMethod = formatPaymentMethodName(result);
+                                if (specificMethod) {
+                                    order.paymentMethod = specificMethod;
+                                    rcptPayment.textContent = specificMethod;
+                                    sessionStorage.setItem('ctb_current_order', JSON.stringify(order));
+                                }
                                 checkOrderStatusImmediate();
                             },
                             onPending: function(result) {
                                 console.log('Midtrans Payment Pending:', result);
+                                const specificMethod = formatPaymentMethodName(result);
+                                if (specificMethod) {
+                                    order.paymentMethod = specificMethod;
+                                    rcptPayment.textContent = specificMethod;
+                                    sessionStorage.setItem('ctb_current_order', JSON.stringify(order));
+                                }
                             },
                             onError: function(result) {
                                 console.error('Midtrans Payment Error:', result);
@@ -338,6 +380,12 @@
                     fetch("{{ route('pembayaran.status') }}?order_number=" + encodeURIComponent(order.id))
                         .then(res => res.json())
                         .then(resData => {
+                            if (resData.payment_method && resData.payment_method !== order.paymentMethod) {
+                                order.paymentMethod = resData.payment_method;
+                                rcptPayment.textContent = resData.payment_method;
+                                sessionStorage.setItem('ctb_current_order', JSON.stringify(order));
+                            }
+
                             if (resData.payment_status === 'paid') {
                                 isOrderPaid = true;
                                 clearInterval(statusPollInterval);
