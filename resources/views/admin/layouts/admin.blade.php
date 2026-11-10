@@ -1093,21 +1093,11 @@
                 </a>
             </li>
             
-            <!-- FOLDER: MENU -->
-            <li class="nav-folder {{ request()->routeIs('admin.menu*') ? 'open' : '' }}" id="folder-menu">
-                <button type="button" class="nav-folder-btn" onclick="toggleFolder('folder-menu')">
-                    <span class="folder-left">
-                        <i class="fa-solid fa-book-open"></i> Menu
-                    </span>
-                    <i class="fa-solid fa-chevron-right folder-arrow"></i>
-                </button>
-                <ul class="nav-sub-menu" id="folder-menu-list" style="{{ request()->routeIs('admin.menu*') ? '' : 'display:none;' }}">
-                    <li class="nav-sub-item {{ request()->routeIs('admin.menu.index') || request()->routeIs('admin.menu.create') || request()->routeIs('admin.menu.edit') ? 'active' : '' }}">
-                        <a href="{{ route('admin.menu.index') }}">
-                            <i class="fa-solid fa-utensils"></i> Kelola Menu
-                        </a>
-                    </li>
-                </ul>
+            <!-- KELOLA MENU -->
+            <li class="nav-item {{ request()->routeIs('admin.menu*') ? 'active' : '' }}">
+                <a href="{{ route('admin.menu.index') }}">
+                    <i class="fa-solid fa-utensils"></i> Kelola Menu
+                </a>
             </li>
 
             <!-- FOLDER: PESANAN -->
