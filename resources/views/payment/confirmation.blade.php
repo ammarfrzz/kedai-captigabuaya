@@ -19,6 +19,9 @@
         'resources/css/app.css',
         'resources/css/components/payment.css',
     ])
+
+    <!-- Midtrans Snap JS -->
+    <script src="{{ $snapUrl ?? 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $clientKey ?? config('midtrans.client_key') }}"></script>
 </head>
 <body class="payment-page confirmation-page">
 
@@ -46,10 +49,10 @@
 
     {{-- Main Confirmation Content --}}
     <main class="payment-main confirmation-main">
-        <div class="confirmation-container" id="confirmationContainer">
+        <div class="confirmation-container" id="confirmationContainer" style="max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 3rem;">
             
             {{-- Status Banner Atas --}}
-            <div class="confirm-hero-card">
+            <div class="confirm-hero-card" style="margin-bottom: 1.5rem;">
                 <div class="confirm-hero-icon" id="confirmHeroIcon">
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
@@ -59,247 +62,116 @@
                 <p class="confirm-hero-subtitle" id="confirmHeroSubtitle">
                     Pesananmu telah tercatat ke antrean dapur Kedai Cap Tiga Buaya.
                 </p>
-            </div>
 
-            {{-- Grid Dua Kolom: Instruksi Pembayaran (Kiri) & Ringkasan Struk (Kanan) --}}
-            <div class="confirmation-grid">
+                {{-- Banner Khusus Tunai di Kasir --}}
+                <div id="cashBanner" style="display: none; margin-top: 1.25rem; background: #F8FAF9; border: 1.5px dashed #CBD5E1; border-radius: 12px; padding: 1rem 1.25rem; text-align: center;">
+                    <span style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748B; letter-spacing: 0.05em; margin-bottom: 2px;">KODE TRANSAKSI KASIR</span>
+                    <strong id="cashTransId" style="font-size: 1.4rem; font-weight: 900; color: #234E2F; font-family: monospace; letter-spacing: 0.04em;">#CTB-XXXX</strong>
+                    <p style="font-size: 0.85rem; color: #475569; margin: 0.35rem 0 0;">
+                        Tunjukkan kode transaksi ini ke kasir untuk menyelesaikan pembayaran dan mengambil pesanan.
+                    </p>
+                </div>
 
-                {{-- Kolom Kiri: Instruksi Berdasarkan Metode Bayar --}}
-                <div class="confirm-instructions-col">
-
-                    {{-- 1. Blok Khusus QRIS Dinamis --}}
-                    <div class="confirm-card confirm-card--qris" id="qrisSection" style="display: none;">
-                        <div class="confirm-card__header">
-                            <div class="confirm-card__header-left">
-                                <span class="qris-tag-badge">QRIS</span>
-                                <div>
-                                    <h2 class="confirm-card__title">Pindai QRIS</h2>
-                                    <span class="confirm-card__sub">Nominal tagihan otomatis</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Box Merchant & Nominal --}}
-                        <div class="qris-merchant-box">
-                            <span class="qris-merchant-name">KEDAI CAP TIGA BUAYA</span>
-                            <span class="qris-nmid">NMID: ID1024391823901 • A01</span>
-                            <div class="qris-amount-badge">
-                                <span class="qris-amount-label">Nominal</span>
-                                <strong class="qris-amount-value" id="qrisConfirmAmount">Rp 0</strong>
-                            </div>
-                        </div>
-
-                        {{-- QR Code Display --}}
-                        <div class="qris-code-wrapper">
-                            <div class="qris-code-frame">
-                                <img
-                                    id="qrisConfirmImg"
-                                    src=""
-                                    alt="QRIS Dinamis Cap Tiga Buaya"
-                                    class="qris-qr-image"
-                                >
-                                <div class="qris-qr-center-logo">
-                                    <img src="{{ asset('images/logo.png') }}?v={{ filemtime(public_path('images/logo.png')) }}" alt="CTB">
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Timer Countdown --}}
-                        <div class="qris-meta-bar">
-                            <div class="qris-timer-box">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                                <span>Sisa Waktu :<strong id="qrisConfirmTimer">01:00</strong></span>
-                            </div>
-                            <button type="button" class="qris-refresh-btn" id="btnRefreshConfirmQris">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="23 4 23 10 17 10"></polyline>
-                                    <polyline points="1 20 1 14 7 14"></polyline>
-                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                                </svg>
-                                <span>Segarkan QR</span>
-                            </button>
-                        </div>
-
-                        {{-- Panduan Bayar QRIS --}}
-                        <div class="qris-guide-box">
-                            <h3 class="qris-guide-heading">Langkah Pembayaran:</h3>
-                            <div class="qris-step-item">
-                                <span class="qris-step-num">1</span>
-                                <span>Buka aplikasi m-Banking (BCA, Mandiri, BRI, BNI) atau e-Wallet (GoPay, DANA, OVO, ShopeePay)</span>
-                            </div>
-                            <div class="qris-step-item">
-                                <span class="qris-step-num">2</span>
-                                <span>Pilih menu <strong>Scan / QRIS</strong> lalu scan kode QR di atas</span>
-                            </div>
-                            <div class="qris-step-item">
-                                <span class="qris-step-num">3</span>
-                                <span>Periksa nama merchant <strong>KEDAI CAP TIGA BUAYA</strong> dan nominal pembayaran</span>
-                            </div>
-                            <div class="qris-step-item">
-                                <span class="qris-step-num">4</span>
-                                <span>Setelah sukses, sistem kasir kami akan menerima verifikasi secara langsung</span>
-                            </div>
-                        </div>
-
-                        <div class="qris-wallet-chips">
-                            <span class="wallet-chip">BCA</span>
-                            <span class="wallet-chip">Mandiri</span>
-                            <span class="wallet-chip">BRImo</span>
-                            <span class="wallet-chip">GoPay</span>
-                            <span class="wallet-chip">DANA</span>
-                            <span class="wallet-chip">ShopeePay</span>
-                            <span class="wallet-chip">OVO</span>
-                        </div>
-                    </div>
-
-                    {{-- 2. Blok Khusus Tunai di Kasir --}}
-                    <div class="confirm-card confirm-card--cash" id="cashSection" style="display: none;">
-                        <div class="confirm-card__header">
-                            <div class="confirm-card__header-left">
-                                <div class="cash-icon-badge">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                                        <circle cx="12" cy="12" r="2"></circle>
-                                        <path d="M6 12h.01M18 12h.01"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h2 class="confirm-card__title">Pembayaran Tunai / Debit di Kasir</h2>
-                                    <span class="confirm-card__sub">Silakan selesaikan transaksi di meja kasir</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="cash-alert-box">
-                            <div class="cash-queue-badge">
-                                <span class="cash-queue-label">KODE TRANSAKSI ANDA</span>
-                                <strong class="cash-queue-id" id="cashTransId">#CTB-XXXX</strong>
-                            </div>
-                            <p class="cash-alert-text">
-                                Sebutkan <strong>Kode Transaksi</strong> atau <strong>Nama Pelanggan</strong> ke kasir kami untuk memproses struk fisik dan pembayaran.
-                            </p>
-                        </div>
-
-                        {{-- Panduan Kasir --}}
-                        <div class="qris-guide-box">
-                            <h3 class="qris-guide-heading">Petunjuk Pembayaran Kasir:</h3>
-                            <div class="qris-step-item">
-                                <span class="qris-step-num">1</span>
-                                <span>Kunjungi meja kasir Kedai Cap Tiga Buaya</span>
-                            </div>
-                            <div class="qris-step-item">
-                                <span class="qris-step-num">2</span>
-                                <span>Tunjukkan kode transaksi atau sebutkan nama pelanggan <strong id="cashGuideCustName">-</strong></span>
-                            </div>
-                            <div class="qris-step-item">
-                                <span class="qris-step-num">3</span>
-                                <span>Bayar dengan uang tunai (disarankan uang pas) atau kartu debit (BCA, Mandiri, BRI, dll)</span>
-                            </div>
-                            <div class="qris-step-item">
-                                <span class="qris-step-num">4</span>
-                                <span>Simpan struk kasir yang diberikan dan pesanan akan diantar ke mejamu</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Tips / Catatan Pelayanan --}}
-                    <div class="confirm-info-banner">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#234E2F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                {{-- Tombol Buka Midtrans Snap Jika Ditutup / Belum Lunas --}}
+                <div id="midtransActionArea" style="display: none; margin-top: 1.25rem;">
+                    <button type="button" class="confirm-btn-primary" id="btnPayMidtransSnap" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 20px; font-size: 14.5px; font-weight: 800; background: #234E2F; color: #ffffff; border: none; border-radius: 9999px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(35, 78, 47, 0.28);">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
                         </svg>
-                        <p>
-                            Butuh bantuan dengan pesananmu? Jangan ragu untuk langsung bertanya pada staf kami di outlet
-                        </p>
-                    </div>
+                        <span>Buka Pembayaran Midtrans</span>
+                    </button>
+                    <span style="display: block; font-size: 11.5px; color: #64748B; margin-top: 6px; text-align: center;">
+                        <i class="fa-solid fa-lock" style="font-size: 10px;"></i> Pembayaran aman &amp; otomatis terverifikasi
+                    </span>
+                </div>
+            </div>
 
+            {{-- Kartu Detail & Struk Pembayaran (Centered Single Column) --}}
+            <div class="confirm-receipt-card" style="position: static; box-shadow: 0 4px 24px rgba(0,0,0,0.05); border-radius: 20px; padding: 2rem;">
+                
+                <div class="receipt-card-header" style="border-bottom: 1.5px dashed #E2E8F0; padding-bottom: 1.25rem;">
+                    <div class="receipt-brand">
+                        <img src="{{ asset('images/logo.png') }}?v={{ filemtime(public_path('images/logo.png')) }}" alt="Logo CTB" class="receipt-logo" style="width: 40px; height: 40px;">
+                        <div>
+                            <span class="receipt-outlet" style="font-size: 1.05rem;">Kedai Cap Tiga Buaya</span>
+                            <span class="receipt-loc">Surabaya, Jawa Timur</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span id="paymentStatusBadge" style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.04em; background: #FEF3C7; color: #B45309; text-transform: uppercase;">
+                            MENUNGGU BAYAR
+                        </span>
+                    </div>
                 </div>
 
-                {{-- Kolom Kanan: Rincian Struk Digital & Aksi --}}
-                <div class="confirm-receipt-col">
-                    <div class="confirm-receipt-card">
-                        
-                        <div class="receipt-card-header">
-                            <div class="receipt-brand">
-                                <img src="{{ asset('images/logo.png') }}?v={{ filemtime(public_path('images/logo.png')) }}" alt="Logo CTB" class="receipt-logo">
-                                <div>
-                                    <span class="receipt-outlet">Kedai Cap Tiga Buaya</span>
-                                    <span class="receipt-loc">Surabaya, Jawa Timur</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="receipt-box">
-                            <div class="receipt-row">
-                                <span>No. Transaksi</span>
-                                <strong id="rcptId">-</strong>
-                            </div>
-                            <div class="receipt-row">
-                                <span>Waktu Pemesanan</span>
-                                <strong id="rcptDate">-</strong>
-                            </div>
-                            <div class="receipt-row">
-                                <span>Nama Pelanggan</span>
-                                <strong id="rcptName">-</strong>
-                            </div>
-                            <div class="receipt-row">
-                                <span>Tipe Pesanan</span>
-                                <strong id="rcptType">-</strong>
-                            </div>
-                            <div class="receipt-row">
-                                <span>Metode Bayar</span>
-                                <strong id="rcptPayment">-</strong>
-                            </div>
-                            <div class="receipt-row" id="rcptNotesRow" style="display: none;">
-                                <span>Catatan</span>
-                                <strong id="rcptNotes" style="font-weight: 500; font-style: italic; color: #4B5563;">-</strong>
-                            </div>
-
-                            <div class="receipt-divider"></div>
-
-                            {{-- Daftar Item Pesanan --}}
-                            <div class="receipt-items-list" id="rcptItems">
-                                {{-- Diisi JS --}}
-                            </div>
-
-                            <div class="receipt-divider"></div>
-
-                            <div class="receipt-total-row">
-                                <span>TOTAL BAYAR</span>
-                                <span id="rcptTotal">Rp 0</span>
-                            </div>
-                        </div>
-
-                        <div class="confirm-actions">
-                            <button type="button" class="confirm-btn-print" onclick="window.print()">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                    <rect x="6" y="14" width="12" height="8"></rect>
-                                </svg>
-                                <span>Cetak / Simpan Struk</span>
-                            </button>
-
-                            <a href="{{ url('/') }}" class="confirm-btn-home">
-                                <span>Pesan Menu Lain / Selesai</span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="9 18 15 12 9 6"></polyline>
-                                </svg>
-                            </a>
-
-                            <button type="button" class="confirm-btn-cancel-qris" id="btnCancelOrderPage" style="display: none; width: 100%; margin-top: 8px; padding: 10px; background: transparent; color: #DC2626; border: 1.5px solid #FCA5A5; border-radius: 9px; font-family: inherit; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;">
-                                Batalkan Pesanan Ini
-                            </button>
-                        </div>
-
+                <div class="receipt-box" style="margin-top: 1.25rem;">
+                    <div class="receipt-row">
+                        <span>No. Transaksi</span>
+                        <strong id="rcptId">-</strong>
                     </div>
+                    <div class="receipt-row">
+                        <span>Waktu Pemesanan</span>
+                        <strong id="rcptDate">-</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Nama Pelanggan</span>
+                        <strong id="rcptName">-</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Tipe Pesanan</span>
+                        <strong id="rcptType">-</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Metode Pembayaran</span>
+                        <strong id="rcptPayment">-</strong>
+                    </div>
+                    <div class="receipt-row" id="rcptNotesRow" style="display: none;">
+                        <span>Catatan</span>
+                        <strong id="rcptNotes" style="font-weight: 500; font-style: italic; color: #4B5563;">-</strong>
+                    </div>
+
+                    <div class="receipt-divider" style="margin: 1.25rem 0; border-top: 1px dashed #E2E8F0;"></div>
+
+                    {{-- Daftar Item Pesanan --}}
+                    <div class="receipt-items-list" id="rcptItems" style="display: flex; flex-direction: column; gap: 0.65rem;">
+                        {{-- Diisi JS --}}
+                    </div>
+
+                    <div class="receipt-divider" style="margin: 1.25rem 0; border-top: 1px dashed #E2E8F0;"></div>
+
+                    <div class="receipt-total-row" style="font-size: 1.15rem; font-weight: 900; color: #0F172A; display: flex; justify-content: space-between; align-items: center;">
+                        <span>TOTAL TAGIHAN</span>
+                        <span id="rcptTotal" style="color: #234E2F; font-size: 1.35rem;">Rp 0</span>
+                    </div>
+                </div>
+
+                <div class="confirm-actions" style="margin-top: 2rem;">
+                    <button type="button" class="confirm-btn-print" onclick="window.print()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                        <span>Cetak / Simpan Struk</span>
+                    </button>
+
+                    <a href="{{ url('/') }}" class="confirm-btn-home" id="btnConfirmHome" style="display: none;">
+                        <span>Pesan Menu Lain / Selesai</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </a>
+
+                    <button type="button" class="confirm-btn-cancel-qris" id="btnCancelOrderPage" style="display: none; width: 100%; margin-top: 6px; padding: 10px; background: transparent; color: #DC2626; border: 1.5px solid #FCA5A5; border-radius: 9999px; font-family: inherit; font-weight: 700; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;">
+                        Batalkan Pesanan Ini
+                    </button>
                 </div>
 
             </div>
+
+        </div>
+    </main>
 
         </div>
     </main>
@@ -391,115 +263,134 @@
             rcptItems.innerHTML = itemsHtml;
             rcptTotal.textContent = formatRupiah(total);
 
-            // Cek Metode Pembayaran (QRIS Dinamis vs Tunai di Kasir)
-            const isQRIS = order.paymentMethod && order.paymentMethod.toLowerCase().includes('qris');
+            // Cek Metode Pembayaran (Online/Midtrans vs Tunai di Kasir)
+            const isOnline = order.paymentMethod && (order.paymentMethod.toLowerCase().includes('qris') || order.paymentMethod.toLowerCase().includes('online') || order.paymentMethod.toLowerCase().includes('midtrans'));
+            let isOrderPaid = false;
             const btnCancelPage = document.getElementById('btnCancelOrderPage');
+            const cashBanner = document.getElementById('cashBanner');
+            const midtransArea = document.getElementById('midtransActionArea');
+            const statusBadge = document.getElementById('paymentStatusBadge');
+            const btnConfirmHome = document.getElementById('btnConfirmHome');
 
-            if (isQRIS) {
+            if (isOnline) {
                 if (btnCancelPage) btnCancelPage.style.display = 'block';
-                // Tampilkan Card QRIS Dinamis
-                qrisSection.style.display = 'block';
-                cashSection.style.display = 'none';
+                if (cashBanner) cashBanner.style.display = 'none';
+                if (midtransArea) midtransArea.style.display = 'block';
+                if (btnConfirmHome) btnConfirmHome.style.display = 'none';
 
-                confirmHeroTitle.textContent = 'Pembayaran QRIS';
-                confirmHeroSubtitle.textContent = 'Pindai kode QRIS di bawah ini menggunakan aplikasi e-Wallet atau Mobile Banking kamu.';
+                confirmHeroTitle.textContent = 'Menunggu Pembayaran';
+                confirmHeroSubtitle.textContent = 'Silakan selesaikan pembayaran melalui jendela Midtrans. Status pesanan akan otomatis terverifikasi.';
                 confirmHeroIcon.innerHTML = `
                     <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                 `;
-                confirmHeroIcon.style.background = '#DCFCE7';
-                confirmHeroIcon.style.color = '#16A34A';
+                confirmHeroIcon.style.background = '#FEF3C7';
+                confirmHeroIcon.style.color = '#D97706';
 
-                // Setup Dynamic QRIS Code
-                const qrisConfirmAmount = document.getElementById('qrisConfirmAmount');
-                const qrisConfirmImg = document.getElementById('qrisConfirmImg');
-                const qrisConfirmTimer = document.getElementById('qrisConfirmTimer');
-                const btnRefreshConfirmQris = document.getElementById('btnRefreshConfirmQris');
-
-                qrisConfirmAmount.textContent = formatRupiah(total);
-
-                function generateDynamicQrisPayload(amount) {
-                    const merchantName = "KEDAI CAP TIGA BUAYA";
-                    const city = "SURABAYA";
-                    const nmid = "ID1024391823901";
-                    const formattedAmt = String(amount);
-                    return `00020101021226500016ID.CO.QRIS.WWW01189360099900000000000215${nmid}52045812530336054${String(formattedAmt.length).padStart(2, '0')}${formattedAmt}5802ID59${String(merchantName.length).padStart(2, '0')}${merchantName}60${String(city.length).padStart(2, '0')}${city}6304`;
+                if (statusBadge) {
+                    statusBadge.textContent = 'MENUNGGU BAYAR';
+                    statusBadge.style.background = '#FEF3C7';
+                    statusBadge.style.color = '#B45309';
                 }
 
-                function loadQrImage() {
-                    const payload = generateDynamicQrisPayload(total);
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=${encodeURIComponent(payload)}`;
-                    qrisConfirmImg.src = qrUrl;
-                    qrisConfirmImg.style.opacity = '1';
-                    qrisConfirmImg.style.filter = 'none';
+                // ── Integrasi Midtrans Snap Popup ──
+                const btnPayMidtrans = document.getElementById('btnPayMidtransSnap');
+                function triggerSnapPayment() {
+                    const snapToken = order.snap_token;
+                    if (!snapToken) {
+                        fetch("{{ route('pembayaran.status') }}?order_number=" + encodeURIComponent(order.id))
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.snap_token) {
+                                    order.snap_token = data.snap_token;
+                                    sessionStorage.setItem('ctb_current_order', JSON.stringify(order));
+                                    triggerSnapPayment();
+                                }
+                            })
+                            .catch(console.error);
+                        return;
+                    }
+
+                    if (typeof window.snap !== 'undefined' && window.snap.pay) {
+                        window.snap.pay(snapToken, {
+                            onSuccess: function(result) {
+                                console.log('Midtrans Payment Success:', result);
+                                isOrderPaid = true;
+                                checkOrderStatusImmediate();
+                            },
+                            onPending: function(result) {
+                                console.log('Midtrans Payment Pending:', result);
+                            },
+                            onError: function(result) {
+                                console.error('Midtrans Payment Error:', result);
+                                alert('Pembayaran gagal atau dibatalkan.');
+                            },
+                            onClose: function() {
+                                console.log('Customer closed Midtrans popup');
+                            }
+                        });
+                    } else {
+                        setTimeout(triggerSnapPayment, 500);
+                    }
                 }
 
-                loadQrImage();
-
-                // Countdown Timer 1 menit (60 detik)
-                let timeRemaining = 60;
-                let timerInterval = null;
-
-                function updateCountdown() {
-                    const m = Math.floor(timeRemaining / 60);
-                    const s = timeRemaining % 60;
-                    qrisConfirmTimer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                    qrisConfirmTimer.style.color = timeRemaining < 20 ? '#BE1E2D' : '#15803D';
+                if (btnPayMidtrans) {
+                    btnPayMidtrans.addEventListener('click', triggerSnapPayment);
                 }
 
-                function startTimer() {
-                    clearInterval(timerInterval);
-                    timeRemaining = 60;
-                    updateCountdown();
+                // Buka popup Midtrans secara mulus
+                setTimeout(() => {
+                    triggerSnapPayment();
+                }, 500);
 
-                    timerInterval = setInterval(() => {
-                        timeRemaining--;
-                        if (timeRemaining <= 0) {
-                            clearInterval(timerInterval);
-                            qrisConfirmTimer.textContent = 'Kedaluwarsa (Pesanan Dibatalkan)';
-                            qrisConfirmTimer.style.color = '#BE1E2D';
-                            qrisConfirmImg.style.opacity = '0.25';
-                            qrisConfirmImg.style.filter = 'grayscale(100%)';
+                function checkOrderStatusImmediate() {
+                    if (!order.id) return;
+                    fetch("{{ route('pembayaran.status') }}?order_number=" + encodeURIComponent(order.id))
+                        .then(res => res.json())
+                        .then(resData => {
+                            if (resData.payment_status === 'paid') {
+                                isOrderPaid = true;
+                                clearInterval(statusPollInterval);
 
-                            // Hapus pesanan QRIS dari database karena batas waktu 1 menit telah habis
-                            fetch("{{ route('pembayaran.cancel') }}", {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    order_number: order.id,
-                                    order_id: order.dbId || null
-                                })
-                            }).catch(console.error);
+                                confirmHeroTitle.textContent = 'Pembayaran Berhasil!';
+                                confirmHeroSubtitle.textContent = 'Terima kasih, pembayaran pesanan kamu telah lunas dan sedang disiapkan dapur.';
+                                confirmHeroIcon.innerHTML = `
+                                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                `;
+                                confirmHeroIcon.style.background = '#DCFCE7';
+                                confirmHeroIcon.style.color = '#16A34A';
 
-                            localStorage.removeItem('ctb_pending_payment');
-                            sessionStorage.removeItem('ctb_current_order');
-                        } else {
-                            updateCountdown();
-                        }
-                    }, 1000);
+                                if (statusBadge) {
+                                    statusBadge.textContent = 'LUNAS';
+                                    statusBadge.style.background = '#DCFCE7';
+                                    statusBadge.style.color = '#15803D';
+                                }
+
+                                if (midtransArea) midtransArea.style.display = 'none';
+                                if (btnCancelPage) btnCancelPage.style.display = 'none';
+                                if (btnConfirmHome) btnConfirmHome.style.display = 'flex';
+                                localStorage.removeItem('ctb_pending_payment');
+                            }
+                        })
+                        .catch(console.error);
                 }
 
-                startTimer();
-
-                btnRefreshConfirmQris.addEventListener('click', () => {
-                    loadQrImage();
-                    startTimer();
-                });
+                const statusPollInterval = setInterval(checkOrderStatusImmediate, 3000);
 
             } else {
-                // Tampilkan Card Kasir Tunai / Debit
-                qrisSection.style.display = 'none';
-                cashSection.style.display = 'block';
+                // Tampilkan Kasir Tunai
+                if (cashBanner) cashBanner.style.display = 'block';
+                if (midtransArea) midtransArea.style.display = 'none';
+                if (btnCancelPage) btnCancelPage.style.display = 'none';
+                if (btnConfirmHome) btnConfirmHome.style.display = 'flex';
 
                 confirmHeroTitle.textContent = 'Pesanan Berhasil Dicatat';
                 confirmHeroSubtitle.textContent = 'Silakan lakukan pembayaran langsung ke meja kasir untuk mengambil struk fisik dan menyelesaikan pesanan.';
-                
-                // Ubah logo ceklis menjadi hijau (#DCFCE7 background, #16A34A icon)
+
                 confirmHeroIcon.innerHTML = `
                     <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
@@ -508,8 +399,14 @@
                 confirmHeroIcon.style.background = '#DCFCE7';
                 confirmHeroIcon.style.color = '#16A34A';
 
-                document.getElementById('cashTransId').textContent = order.id;
-                document.getElementById('cashGuideCustName').textContent = order.customerName;
+                if (statusBadge) {
+                    statusBadge.textContent = 'BAYAR DI KASIR';
+                    statusBadge.style.background = '#E0F2FE';
+                    statusBadge.style.color = '#0369A1';
+                }
+
+                const cashTransEl = document.getElementById('cashTransId');
+                if (cashTransEl) cashTransEl.textContent = order.id;
             }
 
             // Saat customer menekan "Pesan Menu Lain / Selesai", hapus status pending payment
@@ -559,12 +456,12 @@
             const btnHeaderHome = document.getElementById('btnHeaderHome');
             if (btnHeaderHome) {
                 btnHeaderHome.addEventListener('click', (e) => {
-                    // Jika metode bayar QRIS, samakan konfirmasinya agar pesanan dibatalkan jika kembali ke beranda
-                    if (isQRIS) {
+                    // Hanya munculkan popup konfirmasi pembatalan jika pesanan ONLINE dan statusnya MASIH BELUM LUNAS
+                    if (isOnline && !isOrderPaid) {
                         e.preventDefault();
                         handleCancelOrder();
                     } else {
-                        // Jika Tunai / Kasir, pesanan sudah tercatat, langsung izinkan kembali ke beranda
+                        // Jika sudah Lunas atau metode Tunai di Kasir, langsung izinkan kembali ke beranda tanpa popup
                         localStorage.removeItem('ctb_pending_payment');
                         sessionStorage.removeItem('ctb_current_order');
                     }

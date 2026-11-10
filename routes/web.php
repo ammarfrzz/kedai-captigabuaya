@@ -16,6 +16,7 @@ Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran
 Route::post('/pembayaran/checkout', [PaymentController::class, 'checkout'])->name('pembayaran.checkout');
 Route::post('/pembayaran/batal', [PaymentController::class, 'cancelOrder'])->name('pembayaran.cancel');
 Route::get('/konfirmasi-pembayaran', [PaymentController::class, 'confirmation'])->name('pembayaran.confirmation');
+Route::get('/pembayaran/status', [PaymentController::class, 'checkStatus'])->name('pembayaran.status');
 
 // Admin Guest Routes (Login)
 Route::prefix('admin')->name('admin.')->group(function () {

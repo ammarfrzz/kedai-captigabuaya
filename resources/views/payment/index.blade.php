@@ -510,6 +510,9 @@
                     // Siapkan payload pesanan untuk disimpan ke sessionStorage (supaya aman dari reload)
                     const orderData = {
                         id: transactionId,
+                        order_id: data.order.order_id,
+                        snap_token: data.snap_token || data.order.snap_token,
+                        client_key: data.client_key,
                         date: formattedDate,
                         customerName: customerName,
                         orderType: orderType,
