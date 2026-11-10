@@ -35,26 +35,18 @@
     </form>
 
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-left:auto;">
-        {{-- Filter Status Pesanan & Pembayaran --}}
+        {{-- Filter Pembayaran --}}
         <form id="filter-form" action="{{ route('admin.pesanan.take_away') }}" method="GET" style="display:flex; gap:10px;">
             @if(request('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
-            <select name="status" class="toolbar-select" onchange="document.getElementById('filter-form').submit()" style="font-size:12.5px;">
-                <option value="">Semua Status Pesanan</option>
-                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>⏳ Menunggu</option>
-                <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>🍳 Dimasak</option>
-                <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>✅ Selesai</option>
-                <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>❌ Dibatalkan</option>
-            </select>
-
             <select name="payment" class="toolbar-select" onchange="document.getElementById('filter-form').submit()" style="font-size:12.5px;">
                 <option value="">Semua Pembayaran</option>
                 <option value="paid" {{ request('payment') === 'paid' ? 'selected' : '' }}>🟢 Lunas</option>
                 <option value="unpaid" {{ request('payment') === 'unpaid' ? 'selected' : '' }}>🔴 Belum Lunas</option>
             </select>
 
-            @if(request('status') || request('payment') || request('search'))
+            @if(request('payment') || request('search'))
                 <a href="{{ route('admin.pesanan.take_away') }}" class="btn btn-outline btn-sm" style="font-size:12px;" title="Reset Filter">
                     <i class="fa-solid fa-rotate-left"></i> Reset
                 </a>
@@ -71,7 +63,6 @@
                 <th>No. Pesanan</th>
                 <th>Pelanggan</th>
                 <th>Menu Dipesan</th>
-                <th>Status Pesanan</th>
                 <th>Pembayaran</th>
                 <th>Total Bayar</th>
                 <th style="min-width:180px; text-align:right; padding-right:24px;">Aksi</th>
@@ -104,25 +95,6 @@
                     <div style="font-size:11px; color:var(--text-3); margin-top:2px;">
                         Total: {{ $p->items->sum('quantity') }} porsi
                     </div>
-                </td>
-                <td>
-                    @if($p->order_status === 'completed')
-                        <span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">
-                            <i class="fa-solid fa-circle-check"></i> Selesai
-                        </span>
-                    @elseif($p->order_status === 'processing')
-                        <span class="badge" style="background:#fef3c7; color:#b45309; font-weight:700;">
-                            <i class="fa-solid fa-fire-burner"></i> Dimasak
-                        </span>
-                    @elseif($p->order_status === 'cancelled')
-                        <span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:700;">
-                            <i class="fa-solid fa-ban"></i> Dibatalkan
-                        </span>
-                    @else
-                        <span class="badge" style="background:#f1f5f9; color:#475569; font-weight:700;">
-                            <i class="fa-solid fa-hourglass-half"></i> Menunggu
-                        </span>
-                    @endif
                 </td>
                 <td>
                     <div>
@@ -169,7 +141,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="7" style="text-align:center; padding:40px 20px; color:var(--text-3);">
+                <td colspan="6" style="text-align:center; padding:40px 20px; color:var(--text-3);">
                     <i class="fa-solid fa-clipboard-list" style="font-size:30px; margin-bottom:10px; display:block; opacity:0.35;"></i>
                     <div style="font-weight:600; font-size:14px; color:var(--text-2);">Belum ada pesanan Take Away</div>
                     <div style="font-size:12.5px; margin-top:2px;">Pesanan bungkus bawa pulang akan muncul otomatis di sini.</div>
