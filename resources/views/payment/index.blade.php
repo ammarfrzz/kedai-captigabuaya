@@ -136,14 +136,14 @@
 
                     <div class="payment-methods" id="paymentMethodsGroup">
 
-                        {{-- Metode 1: QRIS Dinamis --}}
+                        {{-- Metode 1: QRIS / Virtual Account --}}
                         <label class="payment-method-item" for="payQRIS">
                             <div class="payment-method-header">
                                 <div class="payment-method-left">
                                     <input type="radio" name="paymentMethod" id="payQRIS" value="QRIS Dinamis" class="payment-radio">
                                     <div class="payment-method-text-wrap">
-                                        <span class="payment-method-name">QRIS</span>
-                                        <span class="payment-method-subtext">BCA, Mandiri, BRI, GoPay, DANA, OVO, ShopeePay</span>
+                                        <span class="payment-method-name">QRIS / Virtual Account</span>
+                                        <span class="payment-method-subtext">BCA, Mandiri, BRI, GoPay, OVO, ShopeePay</span>
                                     </div>
                                 </div>
                             </div>
