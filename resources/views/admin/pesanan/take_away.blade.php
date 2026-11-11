@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Handler 1-Klik Kasir: Terima Tunai
+    // Handler 1-Klik Kasir: Terima Tunai (Menggunakan Custom Modal Elegan)
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.btn-mark-paid');
         if (!btn) return;
@@ -305,55 +305,78 @@ document.addEventListener('DOMContentLoaded', function () {
         const url = btn.getAttribute('data-url');
         const row = btn.closest('.order-row');
 
-        if (!confirm(`Konfirmasi pembayaran TUNAI untuk pesanan #${orderNumber} sudah diterima dan LUNAS?`)) {
-            return;
-        }
+        const executePayment = function() {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
-
-        fetch(url, {
-            method: 'PATCH',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                if (row) {
-                    row.setAttribute('data-payment', 'paid');
-                    const badgeWrap = row.querySelector('.payment-badge-wrap');
-                    if (badgeWrap) {
-                        badgeWrap.innerHTML = `
-                            <span class="badge" style="background:#dcfce7; color:#166534; font-size:11px; font-weight:700;">
-                                <i class="fa-solid fa-check"></i> Lunas
-                            </span>
-                        `;
-                    }
-                    const methodText = row.querySelector('.payment-method-text');
-                    if (methodText && data.order && data.order.payment_method) {
-                        methodText.textContent = data.order.payment_method;
-                    }
-                    const btnWrap = row.querySelector('.btn-mark-paid-wrap');
-                    if (btnWrap) {
-                        btnWrap.remove();
-                    }
+            fetch(url, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
-            } else {
-                alert(data.message || 'Gagal mengonfirmasi pembayaran.');
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (row) {
+                        row.setAttribute('data-payment', 'paid');
+                        const badgeWrap = row.querySelector('.payment-badge-wrap');
+                        if (badgeWrap) {
+                            badgeWrap.innerHTML = `
+                                <span class="badge" style="background:#dcfce7; color:#166534; font-size:11px; font-weight:700;">
+                                    <i class="fa-solid fa-check"></i> Lunas
+                                </span>
+                            `;
+                        }
+                        const methodText = row.querySelector('.payment-method-text');
+                        if (methodText && data.order && data.order.payment_method) {
+                            methodText.textContent = data.order.payment_method;
+                        }
+                        const btnWrap = row.querySelector('.btn-mark-paid-wrap');
+                        if (btnWrap) {
+                            btnWrap.remove();
+                        }
+                    }
+                } else {
+                    if (window.showAdminAlert) {
+                        window.showAdminAlert({
+                            title: 'Gagal',
+                            message: data.message || 'Gagal mengonfirmasi pembayaran.',
+                            type: 'danger'
+                        });
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Terima Tunai</span>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                if (window.showAdminAlert) {
+                    window.showAdminAlert({
+                        title: 'Terjadi Kesalahan',
+                        message: 'Tidak dapat terhubung ke server. Silakan coba beberapa saat lagi.',
+                        type: 'danger'
+                    });
+                }
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Terima Tunai</span>';
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Terjadi kesalahan jaringan.');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Terima Tunai</span>';
-        });
+            });
+        };
+
+        if (typeof window.showAdminConfirm === 'function') {
+            window.showAdminConfirm({
+                title: 'Konfirmasi Terima Tunai',
+                message: `Apakah Anda yakin uang tunai untuk pesanan #${orderNumber} sudah diterima dan status diubah menjadi LUNAS?`,
+                type: 'success',
+                confirmText: 'Ya, Tandai Lunas',
+                cancelText: 'Batal',
+                onConfirm: executePayment
+            });
+        } else {
+            executePayment();
+        }
     });
 
     renderTable();
