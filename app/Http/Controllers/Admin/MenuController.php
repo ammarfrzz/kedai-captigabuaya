@@ -68,7 +68,7 @@ class MenuController extends Controller
             }
 
             if ($saved) {
-                $gambarPath = asset('images/menus/' . $filename);
+                $gambarPath = 'images/menus/' . $filename;
             }
         }
 
@@ -158,7 +158,7 @@ class MenuController extends Controller
             }
 
             if ($saved) {
-                $menuData['gambar'] = asset('images/menus/' . $filename);
+                $menuData['gambar'] = 'images/menus/' . $filename;
             }
         }
 

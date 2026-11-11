@@ -287,6 +287,7 @@
                         src="{{ $item['gambar'] }}"
                         alt="Foto {{ $item['nama'] }}"
                         loading="lazy"
+                        onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';"
                     >
                     @if(!empty($item['terlaris']))
                     <div class="menu-card__medal" aria-label="Menu Terlaris (Best Seller)" title="Menu Terlaris (Best Seller)">

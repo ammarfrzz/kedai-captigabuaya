@@ -360,11 +360,52 @@ document.head.appendChild(revealStyle);
 
 /* ── Floating Cart & Popup Drawer System ─────────── */
 const CART_STORAGE_KEY = 'ctb_cart_items';
+const CART_TIME_KEY    = 'ctb_cart_timestamp';
+const DEFAULT_MENU_FALLBACK_IMG = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
+
+// Bersihkan item URL yang memuat port localhost yang mati atau rusak
+const normalizeItemImg = (imgUrl) => {
+    if (!imgUrl || typeof imgUrl !== 'string') return DEFAULT_MENU_FALLBACK_IMG;
+    // Jika gambar tersimpan dengan URL localhost:8000 dan sekarang host-nya berbeda
+    if (imgUrl.includes('localhost:8000/images/menus/')) {
+        const path = imgUrl.substring(imgUrl.indexOf('images/menus/'));
+        return window.location.origin + '/' + path;
+    }
+    return imgUrl;
+};
 
 const getCart = () => {
     try {
+        // Cek masa berlaku keranjang (TTL 24 jam)
+        const savedTime = localStorage.getItem(CART_TIME_KEY);
+        if (savedTime && (Date.now() - parseInt(savedTime, 10) > 24 * 60 * 60 * 1000)) {
+            localStorage.removeItem(CART_STORAGE_KEY);
+            localStorage.removeItem(CART_TIME_KEY);
+            return {};
+        }
+
         const stored = localStorage.getItem(CART_STORAGE_KEY);
-        return stored ? JSON.parse(stored) : {};
+        if (!stored) return {};
+        const parsed = JSON.parse(stored);
+        if (typeof parsed !== 'object' || parsed === null) return {};
+
+        // Sanitasi item gambar
+        let changed = false;
+        Object.keys(parsed).forEach(k => {
+            const item = parsed[k];
+            if (item && item.img) {
+                const cleanImg = normalizeItemImg(item.img);
+                if (cleanImg !== item.img) {
+                    item.img = cleanImg;
+                    changed = true;
+                }
+            }
+        });
+        if (changed) {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(parsed));
+        }
+
+        return parsed;
     } catch (e) {
         return {};
     }
@@ -373,6 +414,7 @@ const getCart = () => {
 const saveCart = (cart) => {
     try {
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+        localStorage.setItem(CART_TIME_KEY, String(Date.now()));
     } catch (e) {
         console.error('Gagal menyimpan keranjang:', e);
     }
@@ -483,7 +525,7 @@ const updateCartUI = () => {
                 const itemTotal = item.price * item.qty;
                 html += `
                     <div class="cart-item">
-                        <img src="${item.img}" alt="${item.name}" class="cart-item__img">
+                        <img src="${item.img}" alt="${item.name}" class="cart-item__img" onerror="this.onerror=null; this.src='${DEFAULT_MENU_FALLBACK_IMG}';">
                         <div class="cart-item__details">
                             <h4 class="cart-item__name">${item.name}</h4>
                             <div class="cart-item__price">${formatRupiah(item.price)} &times; ${item.qty} = <strong>${formatRupiah(itemTotal)}</strong></div>

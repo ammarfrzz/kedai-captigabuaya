@@ -41,4 +41,27 @@ class Menu extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /**
+     * Accessor untuk gambar menu agar selalu valid di berbagai domain / port
+     * dan memiliki fallback image jika file tidak ditemukan atau kosong.
+     */
+    public function getGambarAttribute($value)
+    {
+        if (empty($value)) {
+            return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
+        }
+
+        // Jika URL eksternal (Unsplash, dll) yang bukan localhost
+        if (preg_match('#^https?://#i', $value)) {
+            if (preg_match('#^https?://(localhost|127\.0\.0\.1)(:\d+)?/(.*)$#i', $value, $matches)) {
+                $relativePath = ltrim($matches[3], '/');
+                return asset($relativePath);
+            }
+            return $value;
+        }
+
+        // Jika path relatif (misal: images/menus/filename.jpg)
+        return asset(ltrim($value, '/'));
+    }
 }

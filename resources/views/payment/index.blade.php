@@ -226,14 +226,42 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const CART_STORAGE_KEY = 'ctb_cart_items';
+            const CART_TIME_KEY = 'ctb_cart_timestamp';
+            const DEFAULT_MENU_FALLBACK_IMG = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
             const formatRupiah = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
+
+            // Normalisasi URL gambar jika ada port usang (misal localhost:8000)
+            const normalizeImg = (imgUrl) => {
+                if (!imgUrl || typeof imgUrl !== 'string') return DEFAULT_MENU_FALLBACK_IMG;
+                if (imgUrl.includes('localhost:8000/images/menus/')) {
+                    const path = imgUrl.substring(imgUrl.indexOf('images/menus/'));
+                    return window.location.origin + '/' + path;
+                }
+                return imgUrl;
+            };
 
             // Ambil keranjang dari localStorage
             let cart = {};
             try {
-                const stored = localStorage.getItem(CART_STORAGE_KEY);
-                if (stored) {
-                    cart = JSON.parse(stored);
+                // Periksa TTL keranjang (24 jam)
+                const savedTime = localStorage.getItem(CART_TIME_KEY);
+                if (savedTime && (Date.now() - parseInt(savedTime, 10) > 24 * 60 * 60 * 1000)) {
+                    localStorage.removeItem(CART_STORAGE_KEY);
+                    localStorage.removeItem(CART_TIME_KEY);
+                } else {
+                    const stored = localStorage.getItem(CART_STORAGE_KEY);
+                    if (stored) {
+                        cart = JSON.parse(stored);
+                        if (typeof cart === 'object' && cart !== null) {
+                            Object.keys(cart).forEach(k => {
+                                if (cart[k] && cart[k].img) {
+                                    cart[k].img = normalizeImg(cart[k].img);
+                                }
+                            });
+                        } else {
+                            cart = {};
+                        }
+                    }
                 }
             } catch (e) {
                 cart = {};
@@ -289,7 +317,7 @@
 
                     html += `
                         <div class="payment-summary-item">
-                            <img src="${item.img}" alt="${item.name}" class="payment-summary-item__img">
+                            <img src="${item.img}" alt="${item.name}" class="payment-summary-item__img" onerror="this.onerror=null; this.src='${DEFAULT_MENU_FALLBACK_IMG}';">
                             <div class="payment-summary-item__info">
                                 <h4 class="payment-summary-item__name">${item.name}</h4>
                                 <span class="payment-summary-item__qty">${item.qty} &times; ${formatRupiah(item.price)}</span>
