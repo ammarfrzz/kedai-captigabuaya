@@ -84,8 +84,8 @@
                         Total: {{ $p->items->sum('quantity') }} porsi
                     </div>
                 </td>
-                <td>
-                    <div>
+                <td class="col-payment">
+                    <div class="payment-badge-wrap">
                         @if($p->payment_status === 'paid')
                             <span class="badge" style="background:#dcfce7; color:#166534; font-size:11px; font-weight:700;">
                                 <i class="fa-solid fa-check"></i> Lunas
@@ -96,9 +96,24 @@
                             </span>
                         @endif
                     </div>
-                    <div style="font-size:11px; color:var(--text-3); margin-top:3px; text-transform:uppercase; font-weight:600;">
+                    <div class="payment-method-text" style="font-size:11px; color:var(--text-3); margin-top:3px; text-transform:uppercase; font-weight:600;">
                         {{ $p->payment_method ?: 'QRIS' }}
                     </div>
+                    @if($p->payment_status !== 'paid')
+                    <div class="btn-mark-paid-wrap" style="margin-top:6px;">
+                        <button type="button" 
+                                class="btn-mark-paid"
+                                data-url="{{ route('admin.pesanan.markPaid', $p->id) }}"
+                                data-order="{{ $p->order_number }}"
+                                style="background:#16a34a; color:#ffffff; border:none; padding:4px 9px; font-size:10.5px; font-weight:700; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:all 0.15s ease;"
+                                onmouseover="this.style.background='#15803d';"
+                                onmouseout="this.style.background='#16a34a';"
+                                title="Klik jika kasir sudah menerima uang tunai dari pelanggan">
+                            <i class="fa-solid fa-check"></i>
+                            <span>Terima Tunai</span>
+                        </button>
+                    </div>
+                    @endif
                 </td>
                 <td style="font-weight:700; color:var(--green-700); font-size:14px; white-space:nowrap;">
                     Rp {{ number_format($p->total, 0, ',', '.') }}
@@ -280,6 +295,66 @@ document.addEventListener('DOMContentLoaded', function () {
             renderTable();
         });
     }
+
+    // Handler 1-Klik Kasir: Terima Tunai
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-mark-paid');
+        if (!btn) return;
+
+        const orderNumber = btn.getAttribute('data-order');
+        const url = btn.getAttribute('data-url');
+        const row = btn.closest('.order-row');
+
+        if (!confirm(`Konfirmasi pembayaran TUNAI untuk pesanan #${orderNumber} sudah diterima dan LUNAS?`)) {
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (row) {
+                    row.setAttribute('data-payment', 'paid');
+                    const badgeWrap = row.querySelector('.payment-badge-wrap');
+                    if (badgeWrap) {
+                        badgeWrap.innerHTML = `
+                            <span class="badge" style="background:#dcfce7; color:#166534; font-size:11px; font-weight:700;">
+                                <i class="fa-solid fa-check"></i> Lunas
+                            </span>
+                        `;
+                    }
+                    const methodText = row.querySelector('.payment-method-text');
+                    if (methodText && data.order && data.order.payment_method) {
+                        methodText.textContent = data.order.payment_method;
+                    }
+                    const btnWrap = row.querySelector('.btn-mark-paid-wrap');
+                    if (btnWrap) {
+                        btnWrap.remove();
+                    }
+                }
+            } else {
+                alert(data.message || 'Gagal mengonfirmasi pembayaran.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Terima Tunai</span>';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Terjadi kesalahan jaringan.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Terima Tunai</span>';
+        });
+    });
 
     renderTable();
 });

@@ -55,6 +55,16 @@
         </div>
 
         <div class="page-header-right" style="display:flex; gap:10px; align-items:center;">
+            @if($order->payment_status !== 'paid')
+            <form action="{{ route('admin.pesanan.markPaid', $order->id) }}" method="POST" style="margin:0;">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn" style="background:#16a34a; color:#ffffff; border:none; padding:8px 16px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-check"></i> Terima Pembayaran Tunai
+                </button>
+            </form>
+            @endif
+
             @if($order->order_status === 'cancelled')
             <form action="{{ route('admin.pesanan.destroy', $order->id) }}" method="POST"
                   data-confirm="Apakah Anda yakin ingin menghapus permanen pesanan yang dibatalkan ini (#{{ $order->order_number }})? Data tidak dapat dipulihkan."
