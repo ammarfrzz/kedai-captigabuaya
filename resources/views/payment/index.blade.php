@@ -230,15 +230,11 @@
             {{-- Header --}}
             <div class="order-review-header">
                 <div class="order-review-header-left">
-                    <div class="order-review-icon-wrap">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                    </div>
+                    <img
+                        src="{{ asset('images/logo.png') }}?v={{ filemtime(public_path('images/logo.png')) }}"
+                        alt="Logo Cap Tiga Buaya"
+                        class="order-review-logo-img"
+                    >
                     <div>
                         <h3 class="order-review-title">Periksa Kembali Pesanan</h3>
                         <p class="order-review-subtitle">Pastikan data &amp; pesanan sudah sesuai</p>
@@ -262,15 +258,15 @@
                     </div>
                     <div class="order-review-row">
                         <span class="order-review-label">Tipe Layanan</span>
-                        <span class="order-review-val val-badge" id="rvOrderType">Makan Sini</span>
+                        <span class="order-review-val" id="rvOrderType">Makan Sini</span>
                     </div>
                     <div class="order-review-row">
                         <span class="order-review-label">Metode Pembayaran</span>
-                        <span class="order-review-val val-highlight" id="rvPaymentMethod">-</span>
+                        <span class="order-review-val" id="rvPaymentMethod">-</span>
                     </div>
                     <div class="order-review-row" id="rvNotesContainer" style="display: none;">
                         <span class="order-review-label">Catatan Tambahan</span>
-                        <span class="order-review-val" id="rvNotes" style="font-style: italic; color: #475569;">-</span>
+                        <span class="order-review-val" id="rvNotes">-</span>
                     </div>
                 </div>
 
@@ -287,10 +283,7 @@
 
                 {{-- Total Pembayaran --}}
                 <div class="order-review-total-bar">
-                    <div>
-                        <span class="order-review-total-label">Total Pembayaran</span>
-                        <div style="font-size: 0.725rem; color: #15803D; font-weight: 600;">Sudah termasuk layanan kedai</div>
-                    </div>
+                    <span class="order-review-total-label">Total Pembayaran</span>
                     <span class="order-review-total-amount" id="rvGrandTotal">Rp 0</span>
                 </div>
             </div>
@@ -301,10 +294,7 @@
                     Ubah Data
                 </button>
                 <button type="button" class="order-review-btn order-review-btn--proceed" id="btnReviewProceed">
-                    <span>Ya, Lanjut Bayar</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
+                    <span>Lanjut Bayar</span>
                 </button>
             </div>
         </div>
@@ -573,12 +563,7 @@
                     }
 
                     btnReviewProceed.disabled = false;
-                    btnReviewProceed.innerHTML = `
-                        <span>Ya, Lanjut Bayar</span>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                    `;
+                    btnReviewProceed.innerHTML = `<span>Lanjut Bayar</span>`;
                 });
             };
 
@@ -747,7 +732,15 @@
                 // Tampilkan data ke dalam Popup Review Pesanan
                 if (rvCustomerName) rvCustomerName.textContent = customerName;
                 if (rvOrderType) rvOrderType.textContent = typeText;
-                if (rvPaymentMethod) rvPaymentMethod.textContent = selectedMethod;
+                
+                // Format display nama metode pembayaran yang dipilih customer
+                let displayPaymentMethod = selectedMethod;
+                if (selectedMethod === 'QRIS Dinamis' || selectedMethod.toLowerCase().includes('qris')) {
+                    displayPaymentMethod = 'QRIS / Virtual Account';
+                } else if (selectedMethod === 'Tunai di Kasir' || selectedMethod.toLowerCase().includes('tunai') || selectedMethod.toLowerCase().includes('kasir')) {
+                    displayPaymentMethod = 'Tunai / Debit di Kasir';
+                }
+                if (rvPaymentMethod) rvPaymentMethod.textContent = displayPaymentMethod;
                 
                 if (notes) {
                     if (rvNotesContainer) rvNotesContainer.style.display = 'flex';
@@ -763,12 +756,7 @@
                 // Reset button konfirmasi modal
                 if (btnReviewProceed) {
                     btnReviewProceed.disabled = false;
-                    btnReviewProceed.innerHTML = `
-                        <span>Ya, Lanjut Bayar</span>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                    `;
+                    btnReviewProceed.innerHTML = `<span>Lanjut Bayar</span>`;
                 }
 
                 // Tampilkan Modal Review

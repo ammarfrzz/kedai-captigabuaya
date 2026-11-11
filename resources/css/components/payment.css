@@ -950,7 +950,7 @@ body.payment-page,
     position: fixed;
     inset: 0;
     z-index: 999999;
-    background: rgba(11, 34, 20, 0.75);
+    background: rgba(17, 24, 39, 0.65);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     display: flex;
@@ -966,8 +966,8 @@ body.payment-page,
     max-width: 520px;
     max-height: 90vh;
     border-radius: 20px;
-    box-shadow: 0 20px 50px rgba(11, 34, 20, 0.35), 0 6px 16px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(22, 60, 36, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2), 0 6px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid #E2E8F0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -980,7 +980,7 @@ body.payment-page,
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(to bottom, #FAFCFA, #FFFFFF);
+    background: #FFFFFF;
 }
 
 .order-review-header-left {
@@ -989,38 +989,32 @@ body.payment-page,
     gap: 0.85rem;
 }
 
-.order-review-icon-wrap {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #E8F5E9;
-    border: 1.5px solid #C8E6C9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #1A4D2B;
-    flex-shrink: 0;
+.order-review-logo-img {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+    display: block;
 }
 
 .order-review-title {
     font-family: 'Playfair Display', serif;
     font-size: 1.25rem;
     font-weight: 700;
-    color: #143823;
+    color: #111827;
     margin: 0;
     line-height: 1.2;
 }
 
 .order-review-subtitle {
     font-size: 0.8rem;
-    color: #64748B;
+    color: #374151;
     margin-top: 3px;
 }
 
 .order-review-close-btn {
     border: none;
     background: #F1F5F9;
-    color: #64748B;
+    color: #374151;
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -1033,7 +1027,7 @@ body.payment-page,
 
 .order-review-close-btn:hover {
     background: #E2E8F0;
-    color: #1E293B;
+    color: #111827;
 }
 
 .order-review-body {
@@ -1043,12 +1037,13 @@ body.payment-page,
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    color: #111827;
 }
 
 /* Info Box */
 .order-review-box {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
     border-radius: 14px;
     padding: 1rem 1.15rem;
     display: flex;
@@ -1062,31 +1057,20 @@ body.payment-page,
     align-items: flex-start;
     font-size: 0.875rem;
     line-height: 1.4;
+    color: #111827;
 }
 
 .order-review-label {
-    color: #64748B;
-    font-weight: 500;
+    color: #111827;
+    font-weight: 600;
 }
 
 .order-review-val {
-    color: #0F172A;
+    color: #111827;
     font-weight: 700;
     text-align: right;
     max-width: 65%;
     word-break: break-word;
-}
-
-.order-review-val.val-highlight {
-    color: #1A4D2B;
-}
-
-.order-review-val.val-badge {
-    background: #E8F5E9;
-    color: #166534;
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.8125rem;
 }
 
 /* Items List */
@@ -1102,9 +1086,9 @@ body.payment-page,
     align-items: center;
     font-size: 0.875rem;
     font-weight: 700;
-    color: #334155;
+    color: #111827;
     padding-bottom: 0.35rem;
-    border-bottom: 1px dashed #CBD5E1;
+    border-bottom: 1px solid #E5E7EB;
 }
 
 .order-review-items-list {
@@ -1122,7 +1106,8 @@ body.payment-page,
     align-items: flex-start;
     font-size: 0.85rem;
     padding: 0.4rem 0;
-    border-bottom: 1px solid #F1F5F9;
+    border-bottom: 1px solid #F3F4F6;
+    color: #111827;
 }
 
 .order-review-item-main {
@@ -1133,42 +1118,45 @@ body.payment-page,
 
 .order-review-item-title {
     font-weight: 700;
-    color: #1E293B;
+    color: #111827;
 }
 
 .order-review-item-note {
     font-size: 0.75rem;
-    color: #94A3B8;
+    color: #4B5563;
     font-style: italic;
 }
 
 .order-review-item-price {
     font-weight: 700;
-    color: #1A4D2B;
+    color: #111827;
     white-space: nowrap;
     margin-left: 0.75rem;
 }
 
 .order-review-total-bar {
-    background: #F1F8F4;
-    border: 1.5px solid #C8E6C9;
-    border-radius: 12px;
-    padding: 0.85rem 1.15rem;
+    background: transparent;
+    border: none;
+    border-top: 1.5px dashed #CBD5E1;
+    border-radius: 0;
+    padding: 0.85rem 0 0.15rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .order-review-total-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #1E293B;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.01em;
 }
 
 .order-review-total-amount {
     font-size: 1.15rem;
     font-weight: 800;
-    color: #1A4D2B;
+    color: #111827;
+    letter-spacing: -0.01em;
 }
 
 .order-review-footer {
