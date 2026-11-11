@@ -222,6 +222,94 @@
         </div>
     </main>
 
+    {{-- =====================================================
+         POPUP CUSTOM KONFIRMASI REVIEW PESANAN SEBELUM BAYAR
+         ===================================================== --}}
+    <div id="orderReviewModal" class="order-review-modal" style="display: none;" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="order-review-card">
+            {{-- Header --}}
+            <div class="order-review-header">
+                <div class="order-review-header-left">
+                    <div class="order-review-icon-wrap">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="order-review-title">Periksa Kembali Pesanan</h3>
+                        <p class="order-review-subtitle">Pastikan data &amp; pesanan sudah sesuai</p>
+                    </div>
+                </div>
+                <button type="button" class="order-review-close-btn" id="btnReviewClose" aria-label="Tutup Popup">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Body --}}
+            <div class="order-review-body">
+                {{-- Data Pemesan --}}
+                <div class="order-review-box">
+                    <div class="order-review-row">
+                        <span class="order-review-label">Nama Pelanggan</span>
+                        <span class="order-review-val" id="rvCustomerName">-</span>
+                    </div>
+                    <div class="order-review-row">
+                        <span class="order-review-label">Tipe Layanan</span>
+                        <span class="order-review-val val-badge" id="rvOrderType">Makan Sini</span>
+                    </div>
+                    <div class="order-review-row">
+                        <span class="order-review-label">Metode Pembayaran</span>
+                        <span class="order-review-val val-highlight" id="rvPaymentMethod">-</span>
+                    </div>
+                    <div class="order-review-row" id="rvNotesContainer" style="display: none;">
+                        <span class="order-review-label">Catatan Tambahan</span>
+                        <span class="order-review-val" id="rvNotes" style="font-style: italic; color: #475569;">-</span>
+                    </div>
+                </div>
+
+                {{-- Daftar Menu Yang Dipesan --}}
+                <div class="order-review-items-box">
+                    <div class="order-review-items-header">
+                        <span>Rincian Menu</span>
+                        <span id="rvItemsCount" style="color: #64748B; font-weight: 600; font-size: 0.8rem;">0 Item</span>
+                    </div>
+                    <div class="order-review-items-list" id="rvItemsList">
+                        {{-- Diisi secara dinamis via JS --}}
+                    </div>
+                </div>
+
+                {{-- Total Pembayaran --}}
+                <div class="order-review-total-bar">
+                    <div>
+                        <span class="order-review-total-label">Total Pembayaran</span>
+                        <div style="font-size: 0.725rem; color: #15803D; font-weight: 600;">Sudah termasuk layanan kedai</div>
+                    </div>
+                    <span class="order-review-total-amount" id="rvGrandTotal">Rp 0</span>
+                </div>
+            </div>
+
+            {{-- Footer Action Buttons --}}
+            <div class="order-review-footer">
+                <button type="button" class="order-review-btn order-review-btn--cancel" id="btnReviewCancel">
+                    Ubah Data
+                </button>
+                <button type="button" class="order-review-btn order-review-btn--proceed" id="btnReviewProceed">
+                    <span>Ya, Lanjut Bayar</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     {{-- Interactive Checkout JS Logic --}}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -367,7 +455,138 @@
                 });
             });
 
-            // 4. Konfirmasi & Bayar Pesanan -> Simpan data & Redirect ke Halaman Konfirmasi
+            // Modal Review Elements
+            const orderReviewModal = document.getElementById('orderReviewModal');
+            const rvCustomerName = document.getElementById('rvCustomerName');
+            const rvOrderType = document.getElementById('rvOrderType');
+            const rvPaymentMethod = document.getElementById('rvPaymentMethod');
+            const rvNotesContainer = document.getElementById('rvNotesContainer');
+            const rvNotes = document.getElementById('rvNotes');
+            const rvItemsCount = document.getElementById('rvItemsCount');
+            const rvItemsList = document.getElementById('rvItemsList');
+            const rvGrandTotal = document.getElementById('rvGrandTotal');
+            const btnReviewClose = document.getElementById('btnReviewClose');
+            const btnReviewCancel = document.getElementById('btnReviewCancel');
+            const btnReviewProceed = document.getElementById('btnReviewProceed');
+
+            let pendingCheckoutData = null;
+
+            const closeReviewModal = () => {
+                if (orderReviewModal) {
+                    orderReviewModal.style.display = 'none';
+                    orderReviewModal.setAttribute('aria-hidden', 'true');
+                }
+            };
+
+            if (btnReviewClose) btnReviewClose.addEventListener('click', closeReviewModal);
+            if (btnReviewCancel) btnReviewCancel.addEventListener('click', closeReviewModal);
+            if (orderReviewModal) {
+                orderReviewModal.addEventListener('click', (e) => {
+                    if (e.target === orderReviewModal) closeReviewModal();
+                });
+            }
+
+            // Eksekusi checkout sesungguhnya setelah konfirmasi di popup review
+            const processActualCheckout = () => {
+                if (!pendingCheckoutData) return;
+
+                btnReviewProceed.disabled = true;
+                btnReviewProceed.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="fa-spin" style="animation: spin 0.8s linear infinite;">
+                        <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+                        <path d="M12 2a10 10 0 0 1 10 10"></path>
+                    </svg>
+                    <span>Memproses Pesanan...</span>
+                `;
+
+                fetch("{{ route('pembayaran.checkout') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        customer_name: pendingCheckoutData.customerName,
+                        order_type: pendingCheckoutData.orderType,
+                        table_number: pendingCheckoutData.tableNo,
+                        notes: pendingCheckoutData.notes,
+                        payment_method: pendingCheckoutData.selectedMethod,
+                        items: pendingCheckoutData.itemsPayload
+                    })
+                })
+                .then(async res => {
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (e) {
+                        throw new Error(`Server returned status ${res.status}`);
+                    }
+
+                    if (!res.ok || !data.success) {
+                        const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join('\n') : 'Terjadi kesalahan saat memproses pesanan.');
+                        throw new Error(errorMsg);
+                    }
+
+                    return data;
+                })
+                .then(data => {
+                    const transactionId = data.order.id;
+
+                    const orderData = {
+                        id: transactionId,
+                        order_id: data.order.order_id,
+                        snap_token: data.snap_token || data.order.snap_token,
+                        client_key: data.client_key,
+                        date: pendingCheckoutData.formattedDate,
+                        customerName: pendingCheckoutData.customerName,
+                        orderType: pendingCheckoutData.orderType,
+                        orderTypeText: pendingCheckoutData.typeText,
+                        tableNo: pendingCheckoutData.tableNo,
+                        notes: pendingCheckoutData.notes,
+                        paymentMethod: pendingCheckoutData.selectedMethod,
+                        items: cart,
+                        subtotal: pendingCheckoutData.totalAmount,
+                        total: pendingCheckoutData.totalAmount,
+                        createdAt: Date.now()
+                    };
+
+                    sessionStorage.setItem('ctb_current_order', JSON.stringify(orderData));
+                    localStorage.removeItem('ctb_pending_payment');
+                    localStorage.removeItem(CART_STORAGE_KEY);
+                    localStorage.removeItem(CART_TIME_KEY);
+
+                    window.location.href = "{{ route('pembayaran.confirmation') }}";
+                })
+                .catch(err => {
+                    console.error('Checkout error:', err);
+                    closeReviewModal();
+
+                    if (window.showCustomAlert) {
+                        window.showCustomAlert({
+                            title: 'Pesanan Gagal Diproses',
+                            message: err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi internet Anda atau hubungi kasir.',
+                            type: 'error'
+                        });
+                    } else {
+                        alert(err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi Anda.');
+                    }
+
+                    btnReviewProceed.disabled = false;
+                    btnReviewProceed.innerHTML = `
+                        <span>Ya, Lanjut Bayar</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    `;
+                });
+            };
+
+            if (btnReviewProceed) {
+                btnReviewProceed.addEventListener('click', processActualCheckout);
+            }
+
+            // 4. Konfirmasi & Bayar Pesanan -> Tampilkan Popup Review Terlebih Dahulu
             btnConfirmPayment.addEventListener('click', () => {
                 const customerName = custNameInput.value.trim();
                 if (!customerName) {
@@ -482,107 +701,81 @@
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const formattedDate = `${day} ${month} ${year}, ${hours}:${minutes} WIB`;
 
-                // Format items array untuk backend
+                // Format items array untuk backend & review
                 let totalAmount = 0;
+                let totalItemsQty = 0;
+                let reviewItemsHtml = '';
+
                 const itemsPayload = Object.keys(cart).map(k => {
-                    const itemTotal = cart[k].price * cart[k].qty;
+                    const item = cart[k];
+                    const itemTotal = item.price * item.qty;
                     totalAmount += itemTotal;
+                    totalItemsQty += item.qty;
+
+                    reviewItemsHtml += `
+                        <div class="order-review-item-row">
+                            <div class="order-review-item-main">
+                                <span class="order-review-item-title">${item.name} &times; ${item.qty}</span>
+                                ${item.notes ? `<span class="order-review-item-note">&ldquo;${item.notes}&rdquo;</span>` : ''}
+                            </div>
+                            <span class="order-review-item-price">${formatRupiah(itemTotal)}</span>
+                        </div>
+                    `;
+
                     return {
-                        id: cart[k].id,
-                        name: cart[k].name,
-                        price: cart[k].price,
-                        qty: cart[k].qty,
-                        notes: cart[k].notes || null
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        qty: item.qty,
+                        notes: item.notes || null
                     };
                 });
 
-                // Disable submit button saat proses
-                btnConfirmPayment.disabled = true;
-                btnConfirmPayment.innerHTML = `<span>Memproses Pesanan...</span>`;
+                // Simpan payload ke variabel pending
+                pendingCheckoutData = {
+                    customerName: customerName,
+                    orderType: orderType,
+                    tableNo: tableNo,
+                    notes: notes,
+                    selectedMethod: selectedMethod,
+                    typeText: typeText,
+                    formattedDate: formattedDate,
+                    totalAmount: totalAmount,
+                    itemsPayload: itemsPayload
+                };
 
-                // Kirim data pesanan ke backend API
-                fetch("{{ route('pembayaran.checkout') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        customer_name: customerName,
-                        order_type: orderType,
-                        table_number: tableNo,
-                        notes: notes,
-                        payment_method: selectedMethod,
-                        items: itemsPayload
-                    })
-                })
-                .then(async res => {
-                    let data;
-                    try {
-                        data = await res.json();
-                    } catch (e) {
-                        throw new Error(`Server returned status ${res.status}`);
-                    }
+                // Tampilkan data ke dalam Popup Review Pesanan
+                if (rvCustomerName) rvCustomerName.textContent = customerName;
+                if (rvOrderType) rvOrderType.textContent = typeText;
+                if (rvPaymentMethod) rvPaymentMethod.textContent = selectedMethod;
+                
+                if (notes) {
+                    if (rvNotesContainer) rvNotesContainer.style.display = 'flex';
+                    if (rvNotes) rvNotes.textContent = `"${notes}"`;
+                } else {
+                    if (rvNotesContainer) rvNotesContainer.style.display = 'none';
+                }
 
-                    if (!res.ok || !data.success) {
-                        const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join('\n') : 'Terjadi kesalahan saat memproses pesanan.');
-                        throw new Error(errorMsg);
-                    }
+                if (rvItemsList) rvItemsList.innerHTML = reviewItemsHtml;
+                if (rvItemsCount) rvItemsCount.textContent = `${totalItemsQty} Item Porsi`;
+                if (rvGrandTotal) rvGrandTotal.textContent = formatRupiah(totalAmount);
 
-                    return data;
-                })
-                .then(data => {
-                    const transactionId = data.order.id;
-
-                    // Siapkan payload pesanan untuk disimpan ke sessionStorage (supaya aman dari reload)
-                    const orderData = {
-                        id: transactionId,
-                        order_id: data.order.order_id,
-                        snap_token: data.snap_token || data.order.snap_token,
-                        client_key: data.client_key,
-                        date: formattedDate,
-                        customerName: customerName,
-                        orderType: orderType,
-                        orderTypeText: typeText,
-                        tableNo: tableNo,
-                        notes: notes,
-                        paymentMethod: selectedMethod,
-                        items: cart,
-                        subtotal: totalAmount,
-                        total: totalAmount,
-                        createdAt: Date.now()
-                    };
-
-                    sessionStorage.setItem('ctb_current_order', JSON.stringify(orderData));
-                    localStorage.removeItem('ctb_pending_payment');
-
-                    // Bersihkan keranjang belanja
-                    localStorage.removeItem(CART_STORAGE_KEY);
-
-                    // Arahkan ke halaman konfirmasi pembayaran
-                    window.location.href = "{{ route('pembayaran.confirmation') }}";
-                })
-                .catch(err => {
-                    console.error('Checkout error:', err);
-                    if (window.showCustomAlert) {
-                        window.showCustomAlert({
-                            title: 'Pesanan Gagal Diproses',
-                            message: err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi internet Anda atau hubungi kasir.',
-                            type: 'error'
-                        });
-                    } else {
-                        alert(err.message || 'Gagal mengirim pesanan. Silakan periksa koneksi Anda.');
-                    }
-                    btnConfirmPayment.disabled = false;
-                    btnConfirmPayment.innerHTML = `
-                        <span>Bayar &amp; Konfirmasi</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12" 5 19 12 12 19"></polyline>
+                // Reset button konfirmasi modal
+                if (btnReviewProceed) {
+                    btnReviewProceed.disabled = false;
+                    btnReviewProceed.innerHTML = `
+                        <span>Ya, Lanjut Bayar</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                     `;
-                });
+                }
+
+                // Tampilkan Modal Review
+                if (orderReviewModal) {
+                    orderReviewModal.style.display = 'flex';
+                    orderReviewModal.setAttribute('aria-hidden', 'false');
+                }
             });
         });
     </script>
