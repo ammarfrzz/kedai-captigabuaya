@@ -27,16 +27,20 @@ class PaymentController extends Controller
     public function checkout(Request $request)
     {
         $validated = $request->validate([
-            'customer_name'  => ['required', 'string', 'max:150'],
+            'customer_name'  => ['required', 'string', 'max:50'],
             'order_type'     => ['required', 'in:dine_in,take_away,dine-in,take-away,takeaway'],
-            'table_number'   => ['nullable', 'regex:/^[0-9]+$/', 'max:10'],
-            'notes'          => ['nullable', 'string'],
+            'table_number'   => ['nullable', 'regex:/^[1-9][0-9]?$/'],
+            'notes'          => ['nullable', 'string', 'max:200'],
             'payment_method' => ['required', 'string'],
             'items'          => ['required', 'array', 'min:1'],
             'items.*.id'     => ['nullable'],
             'items.*.name'   => ['required', 'string'],
             'items.*.price'  => ['required', 'numeric', 'min:0'],
             'items.*.qty'    => ['required', 'integer', 'min:1'],
+        ], [
+            'customer_name.max' => 'Nama pelanggan maksimal 50 karakter.',
+            'table_number.regex' => 'Nomor meja hanya boleh 1 sampai 2 digit angka (1-99).',
+            'notes.max' => 'Catatan pesanan maksimal 200 karakter.',
         ]);
 
         $orderType = str_contains($validated['order_type'], 'dine') ? 'dine_in' : 'take_away';

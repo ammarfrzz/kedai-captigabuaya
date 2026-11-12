@@ -70,22 +70,22 @@
                             id="custName"
                             class="payment-input"
                             placeholder="Contoh: Dinda Kirana"
+                            maxlength="50"
                             required
                         >
                     </div>
 
                     <div class="payment-form-group" id="tableGroup">
-                        <label for="custTable" class="payment-label">Nomor Meja <span style="color: #BE1E2D;">* (Wajib Angka)</span></label>
+                        <label for="custTable" class="payment-label">Nomor Meja <span style="color: #BE1E2D;">*</span></label>
                         <input
-                            type="number"
+                            type="text"
                             id="custTable"
                             class="payment-input"
-                            placeholder="Contoh: 8 (hanya angka meja)"
-                            min="1"
-                            step="1"
+                            placeholder="Contoh: 8"
                             inputmode="numeric"
                             pattern="[0-9]*"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            maxlength="2"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 0 && parseInt(this.value, 10) === 0) { this.value = ''; } if(this.value.length > 2) { this.value = this.value.slice(0, 2); }"
                             required
                         >
                     </div>
@@ -96,7 +96,8 @@
                             id="custNotes"
                             class="payment-textarea"
                             rows="2"
-                            placeholder="Misal: Kopi tubruk gulanya sedikit saja, buat makanan sambalnya dipisah..."
+                            placeholder="Misal: Kopi tubruk gulanya sedikit saja, sambal dipisah..."
+                            maxlength="200"
                             style="resize: none;"
                         ></textarea>
                     </div>
@@ -612,17 +613,17 @@
                         return;
                     }
 
-                    if (!/^\d+$/.test(tableNo)) {
+                    if (!/^[1-9][0-9]?$/.test(tableNo)) {
                         custTableInput.focus();
                         custTableInput.style.borderColor = '#BE1E2D';
                         if (window.showCustomAlert) {
                             window.showCustomAlert({
-                                title: 'Nomor Meja Wajib Angka',
-                                message: 'Nomor meja wajib berupa angka saja (contoh: 1, 8, 15).',
+                                title: 'Nomor Meja Tidak Valid',
+                                message: 'Nomor meja hanya boleh terdiri dari 1 hingga 2 angka (meja 1 - 99).',
                                 type: 'warning'
                             });
                         } else {
-                            alert('Nomor meja harus berupa angka saja!');
+                            alert('Nomor meja hanya boleh terdiri dari 1 hingga 2 angka (1 - 99)!');
                         }
                         setTimeout(() => {
                             custTableInput.style.borderColor = '';
