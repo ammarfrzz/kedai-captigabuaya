@@ -69,6 +69,12 @@ class MidtransService
             'item_details' => $items,
         ];
 
+        // Filter / Custom Payment Channels (Opsi B)
+        $enabledPayments = config('midtrans.enabled_payments');
+        if (!empty($enabledPayments) && is_array($enabledPayments)) {
+            $params['enabled_payments'] = array_values($enabledPayments);
+        }
+
         $snapToken = Snap::getSnapToken($params);
 
         $order->update([
