@@ -45,11 +45,34 @@ class PaymentController extends Controller
 
         $orderType = str_contains($validated['order_type'], 'dine') ? 'dine_in' : 'take_away';
 
-        return DB::transaction(function () use ($validated, $orderType) {
-            // Hitung total dan subtotal
+        // Ambil ID semua menu yang dipesan untuk divalidasi ke database
+        $itemIds = array_filter(array_column($validated['items'], 'id'), fn($id) => is_numeric($id));
+        $dbMenus = Menu::whereIn('id', $itemIds)->get()->keyBy('id');
+
+        return DB::transaction(function () use ($validated, $orderType, $dbMenus) {
+            // Hitung total dan subtotal menggunakan harga resmi dari database jika tersedia
             $subtotal = 0;
+            $verifiedItems = [];
+
             foreach ($validated['items'] as $item) {
-                $subtotal += ($item['price'] * $item['qty']);
+                $menuId = is_numeric($item['id'] ?? null) ? (int)$item['id'] : null;
+                $dbMenu = $menuId ? $dbMenus->get($menuId) : null;
+
+                // Gunakan harga dan nama asli dari database jika menu terdaftar
+                $realPrice = $dbMenu ? (float)$dbMenu->harga : (float)$item['price'];
+                $realName  = $dbMenu ? $dbMenu->nama : $item['name'];
+                $itemSubtotal = $realPrice * (int)$item['qty'];
+
+                $subtotal += $itemSubtotal;
+
+                $verifiedItems[] = [
+                    'menu_id'   => $menuId,
+                    'menu_name' => $realName,
+                    'price'     => $realPrice,
+                    'quantity'  => (int)$item['qty'],
+                    'subtotal'  => $itemSubtotal,
+                    'notes'     => $item['notes'] ?? null,
+                ];
             }
             $total = $subtotal;
 
@@ -73,17 +96,16 @@ class PaymentController extends Controller
                 'notes'          => $validated['notes'] ?? null,
             ]);
 
-            // Simpan Rincian Item Pesanan
-            foreach ($validated['items'] as $item) {
-                $itemSubtotal = $item['price'] * $item['qty'];
+            // Simpan Rincian Item Pesanan yang sudah diverifikasi harganya
+            foreach ($verifiedItems as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
-                    'menu_id'    => is_numeric($item['id'] ?? null) ? $item['id'] : null,
-                    'menu_name'  => $item['name'],
+                    'menu_id'    => $item['menu_id'],
+                    'menu_name'  => $item['menu_name'],
                     'price'      => $item['price'],
-                    'quantity'   => $item['qty'],
-                    'subtotal'   => $itemSubtotal,
-                    'notes'      => $item['notes'] ?? null,
+                    'quantity'   => $item['quantity'],
+                    'subtotal'   => $item['subtotal'],
+                    'notes'      => $item['notes'],
                 ]);
             }
 

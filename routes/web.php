@@ -13,7 +13,9 @@ use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 // Public Front-end Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran');
-Route::post('/pembayaran/checkout', [PaymentController::class, 'checkout'])->name('pembayaran.checkout');
+Route::post('/pembayaran/checkout', [PaymentController::class, 'checkout'])
+    ->middleware('throttle:10,1') // Maks. 10 pesanan per menit per IP untuk mencegah spam
+    ->name('pembayaran.checkout');
 Route::post('/pembayaran/batal', [PaymentController::class, 'cancelOrder'])->name('pembayaran.cancel');
 Route::get('/konfirmasi-pembayaran', [PaymentController::class, 'confirmation'])->name('pembayaran.confirmation');
 Route::get('/pembayaran/status', [PaymentController::class, 'checkStatus'])->name('pembayaran.status');
