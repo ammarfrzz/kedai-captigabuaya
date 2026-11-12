@@ -143,7 +143,7 @@
                                     <input type="radio" name="paymentMethod" id="payQRIS" value="QRIS Dinamis" class="payment-radio">
                                     <div class="payment-method-text-wrap">
                                         <span class="payment-method-name">QRIS / Virtual Account</span>
-                                        <span class="payment-method-subtext">BCA, Mandiri, BRI, GoPay, OVO, ShopeePay</span>
+                                        <span class="payment-method-subtext">Kartu Kredit/Debit, QRIS, BCA, Mandiri, BRI, GoPay, OVO</span>
                                     </div>
                                 </div>
                             </div>

@@ -20,6 +20,7 @@ return [
     'enabled_payments' => env('MIDTRANS_ENABLED_PAYMENTS') 
         ? array_filter(array_map('trim', explode(',', env('MIDTRANS_ENABLED_PAYMENTS'))))
         : [
+            'credit_card',
             'qris',
             'bca_va',
             'bni_va',
@@ -29,7 +30,7 @@ return [
             'echannel', // Mandiri Bill Payment
             'other_va',
             'gopay',
-            'shopeepay',
+            'ovo',
         ],
 ];
 
