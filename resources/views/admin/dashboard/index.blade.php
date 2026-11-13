@@ -30,8 +30,13 @@
                 <div class="stat-note">Belum ada transaksi lunas</div>
             @endif
         </div>
-        <div class="stat-icon" style="background:#dcfce7; color:var(--green-600);">
-            <i class="fa-solid fa-sack-dollar"></i>
+        <div class="stat-icon" style="width:46px; height:46px; border-radius:12px; background:rgba(255,255,255,0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(229,233,230,0.85); box-shadow:0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.9); color:#111827; display:flex; align-items:center; justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                <line x1="2" x2="22" y1="10" y2="10"></line>
+                <path d="M6 15h2"></path>
+                <circle cx="16" cy="15" r="1"></circle>
+            </svg>
         </div>
     </div>
 
@@ -47,8 +52,14 @@
                 <div class="stat-note">Belum ada pesanan masuk</div>
             @endif
         </div>
-        <div class="stat-icon" style="background:#dbeafe; color:#2563eb;">
-            <i class="fa-solid fa-receipt"></i>
+        <div class="stat-icon" style="width:46px; height:46px; border-radius:12px; background:rgba(255,255,255,0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(229,233,230,0.85); box-shadow:0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.9); color:#111827; display:flex; align-items:center; justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 2v4"></path>
+                <path d="M8 2v4"></path>
+                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                <path d="M3 10h18"></path>
+                <path d="m9 16 2 2 4-4"></path>
+            </svg>
         </div>
     </div>
 
@@ -59,8 +70,14 @@
             <div class="stat-value">{{ $activeMenusCount }}</div>
             <div class="stat-note">Item tersedia di menu</div>
         </div>
-        <div class="stat-icon" style="background:#fef3c7; color:#b45309;">
-            <i class="fa-solid fa-utensils"></i>
+        <div class="stat-icon" style="width:46px; height:46px; border-radius:12px; background:rgba(255,255,255,0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(229,233,230,0.85); box-shadow:0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.9); color:#111827; display:flex; align-items:center; justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
+                <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
+                <line x1="6" y1="2" x2="6" y2="4"></line>
+                <line x1="10" y1="2" x2="10" y2="4"></line>
+                <line x1="14" y1="2" x2="14" y2="4"></line>
+            </svg>
         </div>
     </div>
 
@@ -69,15 +86,18 @@
         <div>
             <div class="stat-label">Jam Terpadat</div>
             @if($peakHour)
-                <div class="stat-value" style="font-size:16px; color:#ea580c;">{{ $peakHour }}</div>
+                <div class="stat-value" style="font-size:16px; color:#111827;">{{ $peakHour }}</div>
                 <div class="stat-note">Jam tersibuk dari data nyata</div>
             @else
                 <div class="stat-value" style="color:var(--text-3); font-size:18px;">–</div>
                 <div class="stat-note">Belum ada data transaksi</div>
             @endif
         </div>
-        <div class="stat-icon" style="background:#ffedd5; color:#ea580c;">
-            <i class="fa-solid fa-fire"></i>
+        <div class="stat-icon" style="width:46px; height:46px; border-radius:12px; background:rgba(255,255,255,0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border:1px solid rgba(229,233,230,0.85); box-shadow:0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.9); color:#111827; display:flex; align-items:center; justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
         </div>
     </div>
 </div>
@@ -127,7 +147,7 @@
             </div>
             <div style="background:var(--bg); border-radius:var(--radius-md); padding:14px 16px; border:1px solid var(--border);">
                 <div style="font-size:12px; color:var(--text-3); font-weight:600; text-transform:uppercase;">Jam Terpadat</div>
-                <div style="font-size:20px; font-weight:800; color:#ea580c; margin-top:4px;">
+                <div style="font-size:20px; font-weight:800; color:#111827; margin-top:4px;">
                     {{ $peakHour ?? '–' }}
                 </div>
                 <div style="font-size:11.5px; color:var(--text-3); margin-top:4px;">
