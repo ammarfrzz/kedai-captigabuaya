@@ -92,7 +92,7 @@
                                 <i class="fa-solid fa-check"></i> Lunas
                             </span>
                         @else
-                            <span class="badge" style="background:#fee2e2; color:#991b1b; font-size:11px; font-weight:700;">
+                            <span class="badge" style="background:transparent; color:#dc2626; font-size:11px; font-weight:700; padding:0;">
                                 <i class="fa-solid fa-clock"></i> Belum Lunas
                             </span>
                         @endif
