@@ -64,10 +64,10 @@
         </div>
     </div>
 
-    {{-- Peak Hours --}}
+    {{-- Jam Terpadat --}}
     <div class="stat-card">
         <div>
-            <div class="stat-label">Peak Hours</div>
+            <div class="stat-label">Jam Terpadat</div>
             @if($peakHour)
                 <div class="stat-value" style="font-size:16px; color:#ea580c;">{{ $peakHour }}</div>
                 <div class="stat-note">Jam tersibuk dari data nyata</div>
@@ -101,7 +101,7 @@
         {{-- ── SUMMARY HIGHLIGHTS (isi dari PHP langsung, bukan JS dummy) ── --}}
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:24px;">
             <div style="background:var(--bg); border-radius:var(--radius-md); padding:14px 16px; border:1px solid var(--border);">
-                <div style="font-size:12px; color:var(--text-3); font-weight:600; text-transform:uppercase;">Omset Minggu Ini</div>
+                <div style="font-size:12px; color:var(--text-3); font-weight:600; text-transform:uppercase;" id="stat-omset-title">Omset Minggu Ini</div>
                 <div style="font-size:20px; font-weight:800; color:var(--green-700); margin-top:4px;" id="stat-omset">
                     {{ $weekRevenue > 0 ? 'Rp '.number_format($weekRevenue, 0, ',', '.') : '–' }}
                 </div>
@@ -123,7 +123,7 @@
                 <div style="font-size:20px; font-weight:800; color:var(--text-1); margin-top:4px;" id="stat-rata">
                     {{ $weekAvgDaily > 0 ? 'Rp '.number_format(round($weekAvgDaily), 0, ',', '.') : '–' }}
                 </div>
-                <div style="font-size:11.5px; color:var(--text-3); margin-top:4px;">Per hari minggu ini</div>
+                <div style="font-size:11.5px; color:var(--text-3); margin-top:4px;" id="stat-rata-note">Per hari minggu ini</div>
             </div>
             <div style="background:var(--bg); border-radius:var(--radius-md); padding:14px 16px; border:1px solid var(--border);">
                 <div style="font-size:12px; color:var(--text-3); font-weight:600; text-transform:uppercase;">Jam Terpadat</div>
@@ -263,12 +263,21 @@
     });
 
     // ── Update stat cards saat switch tab ──
-    function updateStats(stats) {
+    function updateStats(stats, period) {
+        const isWeek = period === 'minggu';
+        const titleText = isWeek ? 'Omset Minggu Ini' : 'Omset Bulan Ini';
+        const emptyNoteText = isWeek ? 'Belum ada pemasukan minggu ini' : 'Belum ada pemasukan bulan ini';
+        const ordersNoteText = isWeek ? 'Minggu ini' : 'Bulan ini';
+        const emptyOrdersNote = isWeek ? 'Belum ada pesanan minggu ini' : 'Belum ada pesanan bulan ini';
+        const avgNoteText = isWeek ? 'Per hari minggu ini' : 'Per hari bulan ini';
+
+        document.getElementById('stat-omset-title').innerText = titleText;
         document.getElementById('stat-omset').innerText       = formatRp(stats.omset);
-        document.getElementById('stat-omset-note').innerText  = stats.omset > 0 ? 'Dari pesanan lunas' : 'Belum ada pemasukan periode ini';
+        document.getElementById('stat-omset-note').innerText  = stats.omset > 0 ? 'Dari pesanan lunas' : emptyNoteText;
         document.getElementById('stat-transaksi').innerText   = stats.orders > 0 ? stats.orders + ' Pesanan' : '–';
-        document.getElementById('stat-transaksi-note').innerText = stats.orders > 0 ? 'Periode ini' : 'Belum ada pesanan periode ini';
+        document.getElementById('stat-transaksi-note').innerText = stats.orders > 0 ? ordersNoteText : emptyOrdersNote;
         document.getElementById('stat-rata').innerText        = formatRp(stats.avgDaily);
+        document.getElementById('stat-rata-note').innerText   = avgNoteText;
     }
 
     // ── Switch periode ──
@@ -281,7 +290,7 @@
         salesChart.data.datasets[0].data = d.omset;
         salesChart.update('active');
 
-        updateStats(period === 'minggu' ? weekStats : monthStats);
+        updateStats(period === 'minggu' ? weekStats : monthStats, period);
     }
 </script>
 @endpush
