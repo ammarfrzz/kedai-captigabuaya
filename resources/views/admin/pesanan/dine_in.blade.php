@@ -64,14 +64,15 @@
             <tr class="order-row" data-search="{{ $searchContent }}" data-payment="{{ $p->payment_status }}">
                 <td>
                     <div style="font-weight:700; font-size:13px; color:#1a4d2b;">{{ $p->order_number }}</div>
-                    <div style="font-size:11px; color:var(--text-3); margin-top:2px;">
-                        <i class="fa-regular fa-clock"></i> {{ $p->created_at->format('H:i') }} WIB • {{ $p->created_at->translatedFormat('d M') }}
+                    <div style="font-size:11px; color:var(--text-3); margin-top:2px; display:flex; align-items:center; gap:6px;">
+                        <span><i class="fa-regular fa-clock"></i> {{ $p->created_at->format('H:i') }} WIB</span>
+                        <span>{{ $p->created_at->translatedFormat('d M') }}</span>
                     </div>
                 </td>
                 <td>
                     <div style="font-weight:600; font-size:13.5px; color:var(--text-1);">{{ $p->customer_name }}</div>
-                    <div style="display:flex; align-items:center; gap:6px; margin-top:3px;">
-                        <span class="badge" style="background:#e0f2fe; color:#0369a1; font-size:11px; font-weight:700;">
+                    <div style="margin-top:3px;">
+                        <span style="color:#0369a1; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
                             <i class="fa-solid fa-chair"></i> Meja {{ $p->table_number ?: '-' }}
                         </span>
                     </div>
