@@ -227,16 +227,16 @@
                 <div class="order-step">
                     <div class="order-step__number">02</div>
                     <div class="order-step__body">
-                        <h3 class="order-step__title">PESAN & BAYAR DI KASIR</h3>
-                        <p class="order-step__desc">Tinggal sebut pesananmu ke kasir, terus bayar pakai Tunai, QRIS, atau Kartu Debit.</p>
+                        <h3 class="order-step__title">CHECKOUT &amp; BAYAR</h3>
+                        <p class="order-step__desc">Masukkan ke keranjang, isi data pemesanan, lalu bayar via Online (QRIS/E-Wallet) atau Tunai di kasir.</p>
                     </div>
                 </div>
 
                 <div class="order-step">
                     <div class="order-step__number">03</div>
                     <div class="order-step__body">
-                        <h3 class="order-step__title">HIDANGAN DISAJIKAN</h3>
-                        <p class="order-step__desc">Pesananmu langsung kami proses dan siap diantar <br> ke mejamu.</p>
+                        <h3 class="order-step__title">PESANAN DIPROSES</h3>
+                        <p class="order-step__desc">Pesananmu langsung kami racik dan siap diantar ke meja atau diambil untuk dibawa pulang.</p>
                     </div>
                 </div>
             </div>
