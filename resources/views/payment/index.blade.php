@@ -85,7 +85,7 @@
                             inputmode="numeric"
                             pattern="[0-9]*"
                             maxlength="2"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 0 && parseInt(this.value, 10) === 0) { this.value = ''; } if(this.value.length > 2) { this.value = this.value.slice(0, 2); }"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 0 && parseInt(this.value, 10) === 0) { this.value = ''; } if(parseInt(this.value, 10) > 50) { this.value = '50'; } if(this.value.length > 2) { this.value = this.value.slice(0, 2); }"
                             required
                         >
                     </div>
@@ -613,17 +613,18 @@
                         return;
                     }
 
-                    if (!/^[1-9][0-9]?$/.test(tableNo)) {
+                    const tableNumVal = parseInt(tableNo, 10);
+                    if (isNaN(tableNumVal) || tableNumVal < 1 || tableNumVal > 50) {
                         custTableInput.focus();
                         custTableInput.style.borderColor = '#BE1E2D';
                         if (window.showCustomAlert) {
                             window.showCustomAlert({
                                 title: 'Nomor Meja Tidak Valid',
-                                message: 'Nomor meja hanya boleh terdiri dari 1 hingga 2 angka (meja 1 - 99).',
+                                message: 'Nomor meja yang tersedia adalah meja nomor 1 sampai 50.',
                                 type: 'warning'
                             });
                         } else {
-                            alert('Nomor meja hanya boleh terdiri dari 1 hingga 2 angka (1 - 99)!');
+                            alert('Nomor meja hanya tersedia antara 1 sampai 50!');
                         }
                         setTimeout(() => {
                             custTableInput.style.borderColor = '';

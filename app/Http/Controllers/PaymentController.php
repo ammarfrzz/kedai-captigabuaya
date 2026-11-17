@@ -29,7 +29,11 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'customer_name'  => ['required', 'string', 'max:50'],
             'order_type'     => ['required', 'in:dine_in,take_away,dine-in,take-away,takeaway'],
-            'table_number'   => ['nullable', 'regex:/^[1-9][0-9]?$/'],
+            'table_number'   => [
+                'nullable',
+                'integer',
+                'between:1,50',
+            ],
             'notes'          => ['nullable', 'string', 'max:200'],
             'payment_method' => ['required', 'string'],
             'items'          => ['required', 'array', 'min:1'],
@@ -39,7 +43,8 @@ class PaymentController extends Controller
             'items.*.qty'    => ['required', 'integer', 'min:1'],
         ], [
             'customer_name.max' => 'Nama pelanggan maksimal 50 karakter.',
-            'table_number.regex' => 'Nomor meja hanya boleh 1 sampai 2 digit angka (1-99).',
+            'table_number.between' => 'Nomor meja hanya tersedia antara 1 sampai 50.',
+            'table_number.integer' => 'Nomor meja harus berupa angka.',
             'notes.max' => 'Catatan pesanan maksimal 200 karakter.',
         ]);
 
