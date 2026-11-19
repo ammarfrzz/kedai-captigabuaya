@@ -63,6 +63,16 @@
                         <h2 class="payment-card__title">1. Data Pemesan</h2>
                     </div>
 
+                    {{-- Informasi Pemesanan Di Tempat --}}
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 3px solid #234E2F; border-radius: 8px; padding: 10px 14px; margin-bottom: 1.25rem;">
+                        <span style="display: block; font-size: 0.82rem; font-weight: 700; color: #1E293B; margin-bottom: 2px;">
+                            Pemesanan Khusus di Kedai
+                        </span>
+                        <p style="margin: 0; font-size: 0.8rem; color: #64748B; line-height: 1.45;">
+                            Pastikan Anda sudah berada di lokasi kedai dan menempati meja sebelum memproses pesanan.
+                        </p>
+                    </div>
+
                     <div class="payment-form-group">
                         <label for="custName" class="payment-label">Nama Pelanggan <span style="color: #BE1E2D;">*</span></label>
                         <input
@@ -88,6 +98,9 @@
                             oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length > 0 && parseInt(this.value, 10) === 0) { this.value = ''; } if(parseInt(this.value, 10) > 50) { this.value = '50'; } if(this.value.length > 2) { this.value = this.value.slice(0, 2); }"
                             required
                         >
+                        <small style="display: block; margin-top: 6px; font-size: 0.78rem; color: #64748B;">
+                            *Lihat nomor meja yang tertera pada stiker meja fisik yang sedang Anda tempati.
+                        </small>
                     </div>
 
                     <div class="payment-form-group">

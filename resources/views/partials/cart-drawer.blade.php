@@ -69,6 +69,10 @@
             <span class="cart-drawer__summary-total-price" id="cartDrawerTotal">Rp 0</span>
         </div>
 
+        <p style="font-size: 0.76rem; color: #64748B; margin: 10px 0 12px; line-height: 1.35; text-align: center;">
+            Pesanan khusus santap di tempat (Dine-in) atau bungkus langsung di kedai.
+        </p>
+
         <a href="{{ route('pembayaran') }}" class="cart-drawer__checkout-btn" id="cartDrawerCheckoutBtn">
             <span>Lanjut ke Pembayaran</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
